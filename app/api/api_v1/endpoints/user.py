@@ -5,37 +5,42 @@ from datetime import timedelta
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 from app.schemas import UserCreate, UserLogin
 from app.crud import create_user, authenticate_user
 from app.models import User_Pydantic, UserModel
 from app.dependencies import create_access_token, get_current_user
+from app.api.api_v1.endpoints.utils.smsverify import send_verification_code, validate_verification_code,authenticate_user_with_code
 from starlette import status
+import random
+import string
 
 from app.dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
-# 这是一个简化的示例，实际实现将更复杂
-async def send_verification_code(email_or_phone: str):
-    # 生成验证码并发送到邮箱或手机
-    pass
 
-async def verify_code(email_or_phone: str, code: str) -> bool:
-    # 验证收到的验证码
-    return True
-
-async def authenticate_user_with_code(login: str, code: str) -> Optional[UserModel]:
-    # 实现使用验证码验证用户的逻辑
-    pass
-
+@router.post("/users/send_verify_code")
+async def send_verify_code(mobile: str):
+    try:
+        await send_verification_code(mobile)
+        return {"message": "Verification code sent successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @router.post("/users/register", response_model=User_Pydantic)
 async def register_user(user: UserCreate):
-    if not await verify_code(user.email, user.verification_code):
+    # 检查用户是否已存在
+    existing_user = await UserModel.get_or_none(phone_number=user.phone_number)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")
+    
+    # 验证验证码
+    if not await validate_verification_code(user.phone_number, user.verification_code):
         raise HTTPException(status_code=400, detail="Invalid verification code")
 
-    # 生成随机昵称
-    username = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+    # 生成随机昵称（如果用户未提供）
+    username = user.username if user.username else ''.join(random.choices(string.ascii_letters + string.digits, k=8))
 
+    # 创建用户
     db_user = await create_user(user.email, user.phone_number, user.password, username)
     return await User_Pydantic.from_tortoise_orm(db_user)
 

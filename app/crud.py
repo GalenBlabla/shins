@@ -11,10 +11,14 @@ async def create_user(email: str, phone_number: str, password: str, username: st
     user = await UserModel.create(email=email, phone_number=phone_number, hashed_password=hashed_password, username=username)
     return user
 
-async def authenticate_user(username: str, password: str):
+async def authenticate_user(login: str, password: str):
     try:
-        user = await UserModel.get(username=username)
-        if pwd_context.verify(password, user.hashed_password):
+        # 尝试根据用户名、电子邮件或电话号码获取用户
+        user = await UserModel.get_or_none(username=login) or \
+               await UserModel.get_or_none(email=login) or \
+               await UserModel.get_or_none(phone_number=login)
+
+        if user and pwd_context.verify(password, user.hashed_password):
             return user
     except DoesNotExist:
         return None
