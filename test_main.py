@@ -1,27 +1,33 @@
-# Tests for the FastAPI application.
+import pymysql
+from contextlib import closing
 
-import urllib.parse
-import urllib.request
-
-#接口地址
-url = 'http://106.ihuyi.com/webservice/sms.php?method=Submit'
-
-#定义请求的数据
-values = {
-        'account': 'C92695365',
-        'password': 'e29804a05ed8cec5ccd27f12aa0379a5',
-    'mobile':'18009082890',
-    'content':'您的验证码是：7835。请不要把验证码泄露给其他人。',
-    'format':'json',
+# 数据库配置
+db_config = {
+    'host': 'localhost',
+    'port': 3306,
+    'user': 'oneapi',
+    'password': '123456',
+    'db': 'one-api',
+    'charset': 'utf8mb4'
 }
 
-#将数据进行编码
-data = urllib.parse.urlencode(values).encode(encoding='UTF8')
+# 连接数据库
+try:
+    with closing(pymysql.connect(**db_config)) as connection:
+        with connection.cursor() as cursor:
+            # 获取所有表的名称
+            cursor.execute("SHOW TABLES")
+            tables = cursor.fetchall()
 
-#发起请求
-req = urllib.request.Request(url, data)
-response = urllib.request.urlopen(req)
-res = response.read()
+            for (table_name,) in tables:
+                # 获取每个表的结构
+                cursor.execute(f"SHOW CREATE TABLE {table_name}")
+                create_table_sql = cursor.fetchone()[1]
+                
+                # 将表结构写入文件
+                with open(f"{table_name}_structure.sql", "w") as f:
+                    f.write(create_table_sql)
 
-#打印结果
-print(res.decode("utf8"))
+    print("所有表结构已成功导出！")
+except pymysql.MySQLError as e:
+    print(f"数据库错误：{e}")

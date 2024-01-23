@@ -1,7 +1,7 @@
 # CRUD operations (Create, Read, Update, Delete) using Tortoise ORM.
 
 from tortoise.exceptions import DoesNotExist
-from app.models import UserModel, KeyModel
+from app.models.shensimodels import UserModel, KeyModel
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

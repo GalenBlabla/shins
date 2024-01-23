@@ -1,7 +1,7 @@
 ### 2. `schemas.py`
 # 这个文件包含用于验证和序列化数据的 Pydantic 模型（schemas）。我们将创建用于用户注册、登录和更新密钥的模型。
 from typing import Optional
-
+from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 class UserCreate(BaseModel):
@@ -25,3 +25,25 @@ class KeyUpdate(BaseModel):
     
 class TokenData(BaseModel):
     username: str | None = None
+
+class BindKeyRequest(BaseModel):
+    key: str
+
+class UserTokenData(BaseModel):
+    user_id: int
+    used_quota: int
+    created_time: datetime
+    expired_time: datetime
+    status: int
+    name: Optional[str]
+    accessed_time: Optional[datetime]
+    remain_quota: int
+    unlimited_quota: bool
+
+class UserPublicModel(BaseModel):
+    id: int
+    username: str
+    email: str
+    phone_number: str
+    is_active: bool
+    is_superuser: bool

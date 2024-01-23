@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from app.models import UserModel
+from app.models.shensimodels import UserModel
 from app.schemas import TokenData
 from app.config import SECRET_KEY
 

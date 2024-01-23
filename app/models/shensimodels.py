@@ -27,7 +27,7 @@ class VerificationCodeModel(models.Model):
         
 class KeyModel(models.Model):
     id = fields.IntField(pk=True)
-    phone_number = fields.CharField(max_length=20, unique=True, null=True)
+    user = fields.ForeignKeyField('shensidb_app.UserModel', related_name='keys')
     key = fields.CharField(max_length=100, unique=True)
     is_active = fields.BooleanField(default=True)
 

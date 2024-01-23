@@ -12,7 +12,7 @@ import pytz
 
 from tortoise.exceptions import DoesNotExist
 
-from app.models import UserModel, VerificationCodeModel
+from app.models.shensimodels import UserModel, VerificationCodeModel
 from app.config import SMS_ACCOUNT,SMS_API_URL,SMS_PASSWORD
 
 
