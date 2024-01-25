@@ -66,32 +66,12 @@ async def get_token_data(key: str, user: UserModel = Depends(get_current_user)):
     )
     return token_data
 
-@router.get("/user-tokens", response_model=List[UserTokenData])
-async def get_all_user_tokens_data(user: UserModel = Depends(get_current_user)):
-    # 获取当前用户的所有 tokens
-    user_tokens = await Tokens.filter(user_id=user.id).all()
-
-    # 聚合所有 tokens 的信息
-    tokens_data = []
-    for token_obj in user_tokens:
-        # 使用 get_token_data 中的逻辑或直接调用该函数
-        token_data = UserTokenData(
-            user_id=token_obj.user_id,
-            used_quota=token_obj.used_quota,
-            created_time=timestamp_to_datetime(token_obj.created_time),
-            expired_time=timestamp_to_datetime(token_obj.expired_time),
-            status=token_obj.status,
-            name=token_obj.name,
-            accessed_time=timestamp_to_datetime(token_obj.accessed_time) if token_obj.accessed_time else None,
-            remain_quota=token_obj.remain_quota,
-            unlimited_quota=token_obj.unlimited_quota
-        )
-        tokens_data.append(token_data)
-
-    return tokens_data
 
 @router.get("/user-tokens", response_model=List[UserTokenData])
-async def get_all_user_tokens_data(user: UserModel = Depends(get_current_user)):
+async def get_all_user_tokens_datas(user: UserModel = Depends(get_current_user)):
+    '''
+    获取当前用户下所有的key的信息
+    '''
     # 从 KeyModel 获取当前用户的所有 keys
     user_keys = await KeyModel.filter(user_id=user.id).all()
 

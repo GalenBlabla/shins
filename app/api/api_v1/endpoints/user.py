@@ -5,9 +5,10 @@ from datetime import timedelta
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends
-from app.schemas import UserCreate, UserLogin, UserPublicModel
+from app.schemas import PasswordUpdateModel, UserCreate, UserLogin, UserPublicModel
 from app.crud import create_user, authenticate_user
 from app.models.shensimodels import User_Pydantic, UserModel
+from passlib.context import CryptContext
 from app.dependencies import create_access_token, get_current_user
 from app.api.api_v1.endpoints.utils.smsverify import send_verification_code, validate_verification_code,authenticate_user_with_code
 from starlette import status
@@ -20,14 +21,38 @@ router = APIRouter()
 
 @router.post("/users/send_verify_code")
 async def send_verify_code(mobile: str):
+    """
+    向指定的手机号发送验证码。
+    
+    参数:
+    - mobile (str): 要发送验证码的手机号码。
+    
+    异常:
+    - HTTPException: 400 错误，手机号已经注册。
+    - HTTPException: 500 错误，发送验证码时出错。
+    
+    返回:
+    - dict: 成功发送验证码的确认消息。
+    """
+    existing_user = await UserModel.get_or_none(phone_number=mobile)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Mobile number already registered")
+
     try:
         await send_verification_code(mobile)
         return {"message": "Verification code sent successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
     
 @router.post("/users/register", response_model=User_Pydantic)
 async def register_user(user: UserCreate):
+    """
+    使用给定的用户信息注册新用户。
+    
+    异常:
+    - HTTPException: 400 错误，用户已存在或验证码无效。
+    """
     # 检查用户是否已存在
     existing_user = await UserModel.get_or_none(phone_number=user.phone_number)
     if existing_user:
@@ -47,6 +72,9 @@ async def register_user(user: UserCreate):
 
 @router.post("/users/login")
 async def login_for_access_token(form_data: UserLogin):
+    """
+    验证用户并提供访问令牌。
+    """
     user = None
     if form_data.password:
         # 使用密码登录
@@ -83,6 +111,12 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
 
 @router.put("/users/{user_id}/username")
 async def update_username(user_id: int, new_username: str, current_user: UserModel = Depends(get_current_user)):
+    """
+    更新特定用户的用户名。
+    
+    返回:
+    - dict: 用户名更新成功的消息。
+    """
     if user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not allowed to update this user's username")
 
@@ -95,3 +129,20 @@ async def update_username(user_id: int, new_username: str, current_user: UserMod
     await user.save()
     return {"message": "Username updated successfully"}
 
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+@router.put("/users/update-password")
+async def update_password(password_update: PasswordUpdateModel, current_user: UserModel = Depends(get_current_user)):
+    """
+    改密码
+    """
+    # 验证旧密码
+    if not pwd_context.verify(password_update.old_password, current_user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
+
+    # 更新密码
+    hashed_new_password = pwd_context.hash(password_update.new_password)
+    current_user.hashed_password = hashed_new_password
+    await current_user.save()
+
+    return {"message": "Password updated successfully"}

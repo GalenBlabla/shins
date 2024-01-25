@@ -47,3 +47,10 @@ class UserPublicModel(BaseModel):
     phone_number: str
     is_active: bool
     is_superuser: bool
+
+
+
+class PasswordUpdateModel(BaseModel):
+    old_password: str
+    new_password: str
+

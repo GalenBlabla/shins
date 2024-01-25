@@ -32,8 +32,8 @@ app.add_middleware(
 # Tortoise-ORM 配置
 tortoise_config = {
     "connections": {
-        "shensidb": "mysql://root:mysql@Shensi2024@localhost:3308/ShenSiDB",
-        "oneapidb": "mysql://oneapi:123456@localhost:3306/one-api"
+        "shensidb": "mysql://root:mysql@Shensi2024@shensi-db:3306/ShenSiDB",
+        "oneapidb": "mysql://oneapi:123456@db:3306/one-api"
     },
     "apps": {
         "shensidb_app": {"models": ["app.models.shensimodels"], "default_connection": "shensidb"},
@@ -47,3 +47,7 @@ register_tortoise(
     generate_schemas=True,
     add_exception_handlers=True
 )
+
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app=app,host='0.0.0.0',port=8000)

@@ -39,8 +39,6 @@ services:
     container_name: mysql
     volumes:
       - ./data/mysql:/var/lib/mysql  # 挂载目录，持久化存储
-    ports:
-      - '3306:3306'
     environment:
       TZ: Asia/Shanghai   # 设置时区
       MYSQL_ROOT_PASSWORD: 'OneAPI@justsong' # 设置 root 用户的密码
@@ -55,7 +53,14 @@ services:
       MYSQL_DATABASE: ShenSiDB
       MYSQL_USER: hailong
       MYSQL_PASSWORD: mysql@Shensi2024
-    ports:
-      - "3308:3306"
     volumes:
       - ./mysql-data:/var/lib/mysql
+  shensibeckend:
+    build: ../app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../app:/usr/src/app
+    depends_on:
+      - shensi-db
+      - db
