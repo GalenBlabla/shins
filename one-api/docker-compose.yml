@@ -49,12 +49,13 @@ services:
     image: mysql:latest
     container_name: ShenSiMysql
     environment:
-      MYSQL_ROOT_PASSWORD: mysql@Shensi2024
-      MYSQL_DATABASE: ShenSiDB
-      MYSQL_USER: hailong
-      MYSQL_PASSWORD: mysql@Shensi2024
+      - MYSQL_ROOT_PASSWORD: mysql@Shensi2024
+      - MYSQL_DATABASE: ShenSiDB
+      - MYSQL_USER: hailong
+      - MYSQL_PASSWORD: mysql@Shensi2024
+      - lower_case_table_names=1
     volumes:
-      - ./mysql-data:/var/lib/mysql
+      - ./shensi-mysql-data:/var/lib/mysql
   shensibeckend:
     build: ../app
     ports:
