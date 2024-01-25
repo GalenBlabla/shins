@@ -46,7 +46,7 @@ services:
       MYSQL_PASSWORD: '123456'    # 设置专用用户密码
       MYSQL_DATABASE: one-api   # 自动创建数据库
   shensi-db:
-    image: mysql:latest
+    image: mysql:8.2.0
     container_name: ShenSiMysql
     environment:
       - MYSQL_ROOT_PASSWORD: mysql@Shensi2024
