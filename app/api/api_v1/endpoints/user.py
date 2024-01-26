@@ -7,7 +7,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
 from app.schemas import PasswordUpdateModel, UserCreate, UserLogin, UserPublicModel
 from app.crud import create_user, authenticate_user
-from app.models.shensimodels import User_Pydantic, UserModel
+from app.models.shensimodels import KeyModel, User_Pydantic, UserModel
 from passlib.context import CryptContext
 from app.dependencies import create_access_token, get_current_user
 from app.api.api_v1.endpoints.utils.smsverify import send_verification_code, validate_verification_code,authenticate_user_with_code
@@ -18,6 +18,27 @@ import string
 from app.dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
+@router.get("/users/me")
+async def read_users_me(current_user: UserModel = Depends(get_current_user)):
+    # 获取用户基本信息
+    user_dict = {
+        'id': current_user.id,
+        'username': current_user.username,
+        'email': current_user.email,
+        'phone_number': current_user.phone_number,
+        'is_active': current_user.is_active,
+        'is_superuser': current_user.is_superuser
+    }
+
+    # 获取与用户绑定的所有keys
+    bound_keys = await KeyModel.filter(user_id=current_user.id).all()
+    keys_info = [{'key': key.key, 'bound_date': key.created_at} for key in bound_keys]
+
+    # 将keys信息添加到响应中
+    user_dict['bound_keys'] = keys_info
+
+    return UserPublicModel(**user_dict)
+
 
 @router.post("/users/send_verify_code")
 async def send_verify_code(mobile: str):
@@ -96,17 +117,6 @@ async def login_for_access_token(form_data: UserLogin):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/users/me")
-async def read_users_me(current_user: UserModel = Depends(get_current_user)):
-    user_dict = {
-        'id': current_user.id,
-        'username': current_user.username,
-        'email': current_user.email,
-        'phone_number': current_user.phone_number,
-        'is_active': current_user.is_active,
-        'is_superuser': current_user.is_superuser
-    }
-    return UserPublicModel(**user_dict)
 
 
 @router.put("/users/{user_id}/username")
