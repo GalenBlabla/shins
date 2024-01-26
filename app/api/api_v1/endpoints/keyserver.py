@@ -9,31 +9,35 @@ router = APIRouter()
 
 @router.post("/bind-key/")
 async def bind_key(request: BindKeyRequest, user: UserModel = Depends(get_current_user)):
-    # 从用户提供的 key 中移除前缀 "sk-"
-    stripped_key = request.key
-    if stripped_key.startswith("sk-"):
-        stripped_key = stripped_key[3:]  # 移除前三个字符 "sk-"
+    # 验证 Key 是否以 "sk-" 开头
+    if not request.key.startswith("sk-"):
+        raise HTTPException(status_code=400, detail="Key must start with 'sk-'")
 
-    # 验证 Key 是否存在于 oneapi 数据库中
+    # 从用户提供的 key 中移除前缀 "sk-"
+    stripped_key = request.key[3:]  # 移除前三个字符 "sk-"
+
+    # 验证去除前缀的 Key 是否存在于 oneapi 数据库中
     token_obj = await Tokens.get_or_none(key=stripped_key)
     if token_obj is None:
         raise HTTPException(status_code=404, detail="Key not found in oneapi database")
 
-    # 验证 Key 是否已经在 shensi 数据库的 KeyModel 中存在
-    key_obj = await KeyModel.get_or_none(key=request.key)
+    # 验证去除前缀的 Key 是否已经在 shensi 数据库的 KeyModel 中存在
+    key_obj = await KeyModel.get_or_none(key=stripped_key)
     if key_obj:
         # 检查 Key 是否已被其他用户绑定
-        if key_obj.user_id is not None and key_obj.user_id != user.id:
-            raise HTTPException(status_code=400, detail="Key is already in use")
+        if key_obj.user_id is not None:
+            if key_obj.user_id == user.id:
+                # Key 已绑定到当前用户
+                return {"message": "Key is already bound to this user"}
+            else:
+                # Key 已被其他用户绑定
+                raise HTTPException(status_code=400, detail="Key is already in use by another user")
     else:
         # 如果 Key 在 KeyModel 中不存在，则创建一个新的 KeyModel 实例并绑定到当前用户
-        key_obj = await KeyModel.create(key=request.key, user_id=user.id)
-
-    # 更新 KeyModel 实例的用户信息
-    key_obj.user_id = user.id
-    await key_obj.save()
+        key_obj = await KeyModel.create(key=stripped_key, user_id=user.id)
 
     return {"message": "Key bound successfully"}
+
 
 
 #token check users balance 
@@ -74,7 +78,7 @@ async def get_all_user_tokens_datas(user: UserModel = Depends(get_current_user))
     '''
     # 从 KeyModel 获取当前用户的所有 keys
     user_keys = await KeyModel.filter(user_id=user.id).all()
-
+    print(user_keys)
     # 聚合所有 tokens 的信息
     tokens_data = []
     for key_obj in user_keys:
