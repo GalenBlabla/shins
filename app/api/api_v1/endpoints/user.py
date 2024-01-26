@@ -32,12 +32,15 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
 
     # 获取与用户绑定的所有keys
     bound_keys = await KeyModel.filter(user_id=current_user.id).all()
-    keys_info = [{'key': key.key, 'bound_date': key.created_at} for key in bound_keys]
+
+    # 将每个key的字符串值添加到列表中
+    keys_info = [key.key for key in bound_keys]
 
     # 将keys信息添加到响应中
     user_dict['bound_keys'] = keys_info
 
     return UserPublicModel(**user_dict)
+
 
 
 @router.post("/users/send_verify_code")
