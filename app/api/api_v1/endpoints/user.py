@@ -3,6 +3,7 @@ import random
 import string
 from datetime import timedelta
 from typing import Optional
+from starlette.requests import Request
 
 from fastapi import APIRouter, HTTPException, Depends
 from app.schemas import PasswordUpdateModel, UserCreate, UserLogin, UserPublicModel
@@ -34,7 +35,7 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
     bound_keys = await KeyModel.filter(user_id=current_user.id).all()
 
     # 将每个key的字符串值添加到列表中
-    keys_info = [key.key for key in bound_keys]
+    keys_info = ['sk-'+key.key for key in bound_keys]
 
     # 将keys信息添加到响应中
     user_dict['bound_keys'] = keys_info
@@ -44,25 +45,36 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
 
 
 @router.post("/users/send_verify_code")
-async def send_verify_code(mobile: str):
+async def send_verify_code(request: Request, mobile: str, captcha_input: str):
     """
-    向指定的手机号发送验证码。
-    
+    向指定的手机号发送验证码，并要求验证图形验证码。
+
     参数:
     - mobile (str): 要发送验证码的手机号码。
-    
+    - captcha_input (str): 用户输入的图形验证码。
+
     异常:
-    - HTTPException: 400 错误，手机号已经注册。
+    - HTTPException: 400 错误，手机号已经注册或图形验证码错误。
     - HTTPException: 500 错误，发送验证码时出错。
-    
+
     返回:
     - dict: 成功发送验证码的确认消息。
     """
+    # 验证图形验证码
+    stored_captcha_text = request.session.get('captcha_text')
+    if not stored_captcha_text or captcha_input.lower() != stored_captcha_text.lower():
+        raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
+
+    # 清除会话中的验证码，防止重复使用
+    request.session.pop('captcha_text', None)
+
+    # 检查手机号是否已经注册
     existing_user = await UserModel.get_or_none(phone_number=mobile)
     if existing_user:
         raise HTTPException(status_code=400, detail="Mobile number already registered")
 
     try:
+        # 发送手机验证码
         await send_verification_code(mobile)
         return {"message": "Verification code sent successfully."}
     except Exception as e:
