@@ -61,12 +61,12 @@ async def send_verify_code(request: Request, mobile: str, captcha_input: str):
     - dict: 成功发送验证码的确认消息。
     """
     # 验证图形验证码
-    stored_captcha_text = request.session.get('captcha_text')
-    if not stored_captcha_text or captcha_input.lower() != stored_captcha_text.lower():
-        raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
+    # stored_captcha_text = request.session.get('captcha_text')
+    # if not stored_captcha_text or captcha_input.lower() != stored_captcha_text.lower():
+    #     raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
 
-    # 清除会话中的验证码，防止重复使用
-    request.session.pop('captcha_text', None)
+    # # 清除会话中的验证码，防止重复使用
+    # request.session.pop('captcha_text', None)
 
     # 检查手机号是否已经注册
     existing_user = await UserModel.get_or_none(phone_number=mobile)
