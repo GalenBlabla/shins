@@ -1,0 +1,181 @@
+[SYS] 2024/01/28 - 01:41:36 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:41:36 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:41:36 | [dial tcp 172.28.0.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:41:36 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:41:36 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:41:36 | [dial tcp 172.28.0.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:41:37 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:41:37 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:41:37 | [dial tcp 172.28.0.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:41:38 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:41:38 | using MySQL as database 
+[SYS] 2024/01/28 - 01:41:38 | database migration started 
+[SYS] 2024/01/28 - 01:41:38 | database migrated 
+[SYS] 2024/01/28 - 01:41:38 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 01:41:38 | using theme default 
+[SYS] 2024/01/28 - 01:41:38 | initializing token encoders 
+[SYS] 2024/01/28 - 01:41:40 | token encoders initialized 
+[SYS] 2024/01/28 - 01:42:04 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:42:04 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:42:04 | [dial tcp 172.29.0.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:42:05 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:42:05 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:42:05 | [dial tcp 172.29.0.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:42:05 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:42:05 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:42:05 | [dial tcp 172.29.0.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:42:06 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:42:06 | using MySQL as database 
+[SYS] 2024/01/28 - 01:42:06 | database migration started 
+[SYS] 2024/01/28 - 01:42:06 | database migrated 
+[SYS] 2024/01/28 - 01:42:06 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 01:42:06 | using theme default 
+[SYS] 2024/01/28 - 01:42:06 | initializing token encoders 
+[SYS] 2024/01/28 - 01:43:13 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:43:13 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:43:13 | [dial tcp 172.30.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:43:13 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:43:13 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:43:13 | [dial tcp 172.30.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:43:14 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:43:14 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:43:14 | [dial tcp 172.30.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:43:14 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:43:14 | using MySQL as database 
+[SYS] 2024/01/28 - 01:43:14 | database migration started 
+[SYS] 2024/01/28 - 01:43:15 | database migrated 
+[SYS] 2024/01/28 - 01:43:15 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 01:43:15 | using theme default 
+[SYS] 2024/01/28 - 01:43:15 | initializing token encoders 
+[SYS] 2024/01/28 - 01:43:20 | token encoders initialized 
+[GIN] 2024/01/28 - 01:43:45 | 2024012801434517956066H33wv16T | 200 |     200.565µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:44:15 | 20240128014415250600835BhlqB7kr | 200 |      31.704µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:44:45 | 20240128014445294787095oiDsI0Wo | 200 |       31.81µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:45:15 | 20240128014515338175064AhpliyUu | 200 |       41.04µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:45:45 | 202401280145453825021870nnRWg5m | 200 |       48.65µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:46:15 | 202401280146154161759809RguifGi | 200 |      32.318µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:46:45 | 20240128014645451186538QRayyRSf | 200 |      45.508µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:47:15 | 20240128014715493704817xg4hK8Qj | 200 |      43.525µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:47:45 | 20240128014745531057951s2c7SqU3 | 200 |     107.814µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:48:15 | 20240128014815578195343rZTcceZ9 | 200 |      32.245µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:48:45 | 20240128014845620206129bBVzi7Xd | 200 |      33.655µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:49:15 | 20240128014915651424222kj4xUzYV | 200 |      40.834µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:49:45 | 20240128014945690168007RXfygnY9 | 200 |      78.102µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:50:15 | 20240128015015725414581NrMUweEr | 200 |      46.169µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:50:45 | 202401280150457689179320WXpeGz8 | 200 |      33.525µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:51:15 | 20240128015115809111075tMQVdXzM | 200 |      31.827µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:51:45 | 20240128015145846959514589JIqP2 | 200 |      87.809µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:52:15 | 20240128015215884397301OaGwd5a0 | 200 |      44.795µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:52:45 | 20240128015245923863255FTsWm8hw | 200 |      48.566µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:53:15 | 20240128015315966543160rXFcPFAC | 200 |     143.344µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:53:46 | 2024012801534642220661xyJ94KB | 200 |      45.298µs |       127.0.0.1 |     GET /api/status
+[SYS] 2024/01/28 - 01:54:08 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:54:08 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:54:08 | [dial tcp 172.31.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:54:09 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:54:09 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:54:09 | [dial tcp 172.31.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:54:09 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:54:09 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:54:09 | [dial tcp 172.31.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:54:10 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:54:10 | using MySQL as database 
+[SYS] 2024/01/28 - 01:54:10 | database migration started 
+[SYS] 2024/01/28 - 01:54:10 | database migrated 
+[SYS] 2024/01/28 - 01:54:10 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 01:54:10 | using theme default 
+[SYS] 2024/01/28 - 01:54:10 | initializing token encoders 
+[SYS] 2024/01/28 - 01:54:12 | token encoders initialized 
+[SYS] 2024/01/28 - 01:57:12 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:57:12 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:57:12 | [dial tcp 192.168.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:57:12 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:57:12 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:57:12 | [dial tcp 192.168.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:57:12 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:57:12 | using MySQL as database 
+[FATAL] 2024/01/28 - 01:57:12 | [dial tcp 192.168.0.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 01:57:13 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 01:57:13 | using MySQL as database 
+[SYS] 2024/01/28 - 01:57:13 | database migration started 
+[SYS] 2024/01/28 - 01:57:13 | database migrated 
+[SYS] 2024/01/28 - 01:57:13 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 01:57:13 | using theme default 
+[SYS] 2024/01/28 - 01:57:13 | initializing token encoders 
+[SYS] 2024/01/28 - 01:57:16 | token encoders initialized 
+[GIN] 2024/01/28 - 01:57:43 | 20240128015743523930909sMMl4rzJ | 200 |      68.375µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:58:13 | 20240128015813566794236vc8ohNz1 | 200 |       50.53µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:58:43 | 202401280158436026351578x2p8G38 | 200 |      32.558µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:59:13 | 20240128015913636632555H0bCUgyc | 200 |     147.548µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 01:59:43 | 20240128015943674065488fdQwBwCa | 200 |      60.786µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:00:13 | 20240128020013710543547cmVJjuBe | 200 |      31.474µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:00:43 | 20240128020043748636358UQQUM9rZ | 200 |      33.161µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:01:13 | 20240128020113784634916kUNNBB4O | 200 |       35.52µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:01:43 | 20240128020143823956993UAuKdMJN | 200 |      49.402µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:02:13 | 20240128020213867930219IsdwyaSM | 200 |      43.799µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:02:43 | 20240128020243905660043G43KXvjP | 200 |      42.404µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:03:13 | 20240128020313946050512BhGPm2eD | 200 |      49.047µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:03:43 | 202401280203439827736005mbOXrKK | 200 |      44.315µs |       127.0.0.1 |     GET /api/status
+[SYS] 2024/01/28 - 02:04:06 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:06 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:04:06 | [dial tcp 192.168.16.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:04:06 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:06 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:04:06 | [dial tcp 192.168.16.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:04:07 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:07 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:04:07 | [dial tcp 192.168.16.4:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:04:07 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:07 | using MySQL as database 
+[SYS] 2024/01/28 - 02:04:07 | database migration started 
+[SYS] 2024/01/28 - 02:04:08 | database migrated 
+[SYS] 2024/01/28 - 02:04:08 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 02:04:08 | using theme default 
+[SYS] 2024/01/28 - 02:04:08 | initializing token encoders 
+[SYS] 2024/01/28 - 02:04:10 | token encoders initialized 
+[SYS] 2024/01/28 - 02:04:45 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:45 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:04:45 | [dial tcp 192.168.32.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:04:46 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:46 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:04:46 | [dial tcp 192.168.32.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:04:46 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:46 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:04:46 | [dial tcp 192.168.32.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:04:47 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:04:47 | using MySQL as database 
+[SYS] 2024/01/28 - 02:04:47 | database migration started 
+[SYS] 2024/01/28 - 02:04:47 | database migrated 
+[SYS] 2024/01/28 - 02:04:47 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 02:04:47 | using theme default 
+[SYS] 2024/01/28 - 02:04:47 | initializing token encoders 
+[SYS] 2024/01/28 - 02:04:49 | token encoders initialized 
+[GIN] 2024/01/28 - 02:05:17 | 20240128020517197022276WEGMpI0c | 200 |     134.556µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:05:47 | 20240128020547237830742EhBWoSso | 200 |      32.743µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:06:17 | 20240128020617275794670UFv2eH6C | 200 |      42.055µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:06:47 | 20240128020647321762590UHCbOpFS | 200 |      39.583µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:07:17 | 202401280207173533212403D7Fr8pF | 200 |      96.209µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:07:47 | 20240128020747386734595IiUkg97l | 200 |      32.581µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:08:17 | 20240128020817427575147nmSB8UQK | 200 |      33.777µs |       127.0.0.1 |     GET /api/status
+[SYS] 2024/01/28 - 02:08:28 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:08:28 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:08:28 | [dial tcp 192.168.48.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:08:29 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:08:29 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:08:29 | [dial tcp 192.168.48.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:08:29 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:08:29 | using MySQL as database 
+[FATAL] 2024/01/28 - 02:08:29 | [dial tcp 192.168.48.3:3306: connect: connection refused] 
+[SYS] 2024/01/28 - 02:08:30 | One API v0.5.12-alpha.1 started 
+[SYS] 2024/01/28 - 02:08:30 | using MySQL as database 
+[SYS] 2024/01/28 - 02:08:30 | database migration started 
+[SYS] 2024/01/28 - 02:08:30 | database migrated 
+[SYS] 2024/01/28 - 02:08:30 | SYNC_FREQUENCY not set, Redis is disabled 
+[SYS] 2024/01/28 - 02:08:30 | using theme default 
+[SYS] 2024/01/28 - 02:08:30 | initializing token encoders 
+[SYS] 2024/01/28 - 02:08:33 | token encoders initialized 
+[GIN] 2024/01/28 - 02:09:00 | 2024012802090077493969Dk04GeBs | 200 |      63.347µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:09:30 | 202401280209301230606023hM1VFgW | 200 |      32.854µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:10:00 | 20240128021000164865555M9eJNkk4 | 200 |       39.79µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:10:30 | 20240128021030198010392j5s3PS37 | 200 |      31.376µs |       127.0.0.1 |     GET /api/status
+[GIN] 2024/01/28 - 02:11:00 | 20240128021100236677512yLuUO3Go | 200 |       71.31µs |       127.0.0.1 |     GET /api/status

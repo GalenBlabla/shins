@@ -55,7 +55,7 @@ services:
       - MYSQL_PASSWORD=mysql@Shensi2024
       - lower_case_table_names=1
     volumes:
-      - ./shensi-mysql-data:/var/lib/mysql
+      - ./data/shensi-mysql-data:/var/lib/mysql
     # ports:
     #   - "3306:3306"
   shensibeckend:
