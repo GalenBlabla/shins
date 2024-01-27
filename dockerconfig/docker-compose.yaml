@@ -75,7 +75,7 @@ services:
       PROXY_URL: "http://34.80.104.111:3000"
       NEXT_PUBLIC_BACK_END: "http://34.80.104.111:8000"
     ports:
-      - "3000:3000"  # 映射端口
+      - "3888:3000"  # 映射端口
     volumes:
       - .:/usr/src/app  # 将当前目录挂载到容器的工作目录
     depends_on:
