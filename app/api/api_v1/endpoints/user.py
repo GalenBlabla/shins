@@ -45,7 +45,7 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
 
 
 @router.post("/users/send_verify_code")
-async def send_verify_code(request: Request, mobile: str, captcha_input: str):
+async def send_verify_code(request: Request, mobile: str):#, captcha_input: str
     """
     向指定的手机号发送验证码，并要求验证图形验证码。
 
