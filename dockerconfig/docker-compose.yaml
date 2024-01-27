@@ -69,7 +69,7 @@ services:
       - db
   shensifrontend:
     build:
-      context: ../shensi-app  # 假设Dockerfile位于当前目录
+      context: ../../shensi-app  # 假设Dockerfile位于当前目录
       dockerfile: Dockerfile  # 指定Dockerfile文件名
     environment:
       PROXY_URL: "http://34.80.104.111:3000"
