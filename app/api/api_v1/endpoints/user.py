@@ -171,3 +171,33 @@ async def update_password(password_update: PasswordUpdateModel, current_user: Us
     await current_user.save()
 
     return {"message": "Password updated successfully"}
+
+@router.delete("/users/{user_id}/keys/{key_id}")
+async def delete_user_key(user_id: int, key_id: int, current_user: UserModel = Depends(get_current_user)):
+    """
+    删除用户绑定的特定key。
+
+    参数:
+    - user_id (int): 用户ID。
+    - key_id (int): 要删除的key的ID。
+
+    异常:
+    - HTTPException: 403 错误，如果请求者没有权限删除这个key。
+    - HTTPException: 404 错误，如果找不到指定的key或key不属于该用户。
+
+    返回:
+    - dict: 成功删除key的确认消息。
+    """
+    # 验证是否有权删除这个key
+    if user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You do not have permission to delete this key")
+
+    # 查找要删除的key
+    key_to_delete = await KeyModel.get_or_none(id=key_id, user_id=user_id)
+    if not key_to_delete:
+        raise HTTPException(status_code=404, detail="Key not found or not owned by the user")
+
+    # 从数据库中删除key
+    await key_to_delete.delete()
+
+    return {"message": "Key deleted successfully"}
