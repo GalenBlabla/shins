@@ -60,18 +60,18 @@ services:
     #   - "3306:3306"
   shensibackend:
     build: 
-      context: ../shins/app
+      context: ../shensibackend/app
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ../shins/app:/usr/src/app
+      - ../shensibackend/app:/usr/src/app
     depends_on:
       - shensi-db
       - db
   shensifrontend:
     build:
-      context: ../shensi-app # 假设Dockerfile位于当前目录
+      context: ../shensifrontend # 假设Dockerfile位于当前目录
       dockerfile: Dockerfile  # 指定Dockerfile文件名
     ports:
       - "3888:3000"  # 映射端口
