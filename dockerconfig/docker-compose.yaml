@@ -58,24 +58,23 @@ services:
       - ./data/shensi-mysql-data:/var/lib/mysql
     # ports:
     #   - "3306:3306"
-  shensibeckend:
-    build: ../app
+  shensibackend:
+    build: 
+      context: ../shins/app
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ../app:/usr/src/app
+      - ../shins/app:/usr/src/app
     depends_on:
       - shensi-db
       - db
   shensifrontend:
     build:
-      context: ../../shensi-app # 假设Dockerfile位于当前目录
+      context: ../shensi-app # 假设Dockerfile位于当前目录
       dockerfile: Dockerfile  # 指定Dockerfile文件名
-    environment:
-      PROXY_URL: "http://34.80.104.111:3000"
-      NEXT_PUBLIC_BACK_END: "http://34.80.104.111:8000"
     ports:
       - "3888:3000"  # 映射端口
     # command: tail -f /dev/null  # 临时修改启动命令以保持容器运行
     depends_on:
-      - shensibeckend
+      - shensibackend
