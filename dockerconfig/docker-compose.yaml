@@ -74,7 +74,7 @@ services:
       context: ../shensifrontend # 假设Dockerfile位于当前目录
       dockerfile: Dockerfile  # 指定Dockerfile文件名
     volumes:
-      - ../shensibackend/.env:/usr/src/app
+      - ../shensifrontend/.env:/usr/src/app
     ports:
       - "3888:3000"  # 映射端口
     # command: tail -f /dev/null  # 临时修改启动命令以保持容器运行
