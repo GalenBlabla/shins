@@ -69,12 +69,3 @@ services:
     depends_on:
       - shensi-db
       - db
-  shensifrontend:
-    build:
-      context: ../shensifrontend # 假设Dockerfile位于当前目录
-      dockerfile: Dockerfile  # 指定Dockerfile文件名
-    ports:
-      - "3888:3000"  # 映射端口
-    # command: tail -f /dev/null  # 临时修改启动命令以保持容器运行
-    depends_on:
-      - shensibackend
