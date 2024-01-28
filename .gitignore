@@ -1,8 +1,13 @@
+# Python compiled files
 __pycache__/
-.DS_Store
-/data
-/logs
+*.pyc
 
+# Log files
+*.log
+
+# Docker configuration logs and data
+dockerconfig/logs/
+dockerconfig/data/
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
