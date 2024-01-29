@@ -15,16 +15,6 @@ class UserModel(models.Model):
     class Meta:
         table = "users"
 
-class VerificationCodeModel(models.Model):
-    id = fields.IntField(pk=True)
-    email_or_phone = fields.CharField(max_length=100)  # 存储邮箱或手机信息
-    code = fields.CharField(max_length=6)
-    created_at = fields.DatetimeField(auto_now_add=True)
-    expires_at = fields.DatetimeField()
-
-    class Meta:
-        table = "verification_codes"
-        
 class KeyModel(models.Model):
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField('shensidb_app.UserModel', related_name='keys')
@@ -33,8 +23,6 @@ class KeyModel(models.Model):
 
     class Meta:
         table = "keys"
-
-
 
 # Pydantic models for API
 User_Pydantic = pydantic_model_creator(UserModel, name="User")

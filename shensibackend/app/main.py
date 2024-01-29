@@ -1,5 +1,7 @@
 # FastAPI application main file.
-
+import os
+from dotenv import load_dotenv
+import redis
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +11,7 @@ from app.api.api_v1.endpoints import keyserver
 from app.models import shensimodels,oneapimodels  # 导入您的模型
 from app.api.api_v1.endpoints import user, item, token  # 导入您的路由
 from starlette.middleware.sessions import SessionMiddleware
-
+load_dotenv()
 app = FastAPI()
 # 配置SessionMiddleware，设置密钥和会话cookie的名称
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key", session_cookie="session")
@@ -33,18 +35,19 @@ app.add_middleware(
     allow_methods=["*"],  # 允许所有方法（GET, POST, PUT, DELETE 等）
     allow_headers=["*"],  # 允许所有头部
 )
+
 # Tortoise-ORM 配置
 tortoise_config = {
     "connections": {
-        "shensidb": "mysql://root:mysql@Shensi2024@shensi-db:3306/ShenSiDB",
-        "oneapidb": "mysql://oneapi:123456@db:3306/one-api"
+        "shensidb": f"mysql://{os.getenv('DB_SHENSI_USER')}:{os.getenv('DB_SHENSI_PASSWORD')}@{os.getenv('DB_SHENSI_HOST')}:3306/{os.getenv('DB_SHENSI_NAME')}",
+        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3306/{os.getenv('DB_ONEAPI_NAME')}"
     },
     "apps": {
         "shensidb_app": {"models": ["app.models.shensimodels"], "default_connection": "shensidb"},
         "oneapidb_app": {"models": ["app.models.oneapimodels"], "default_connection": "oneapidb"}
     }
 }
-
+print(os.getenv('SHENSI_MYSQL_DATABASE'))
 register_tortoise(
     app,
     config=tortoise_config,

@@ -4,21 +4,25 @@ import string
 from datetime import timedelta
 from typing import Optional
 from starlette.requests import Request
+import logging
 
 from fastapi import APIRouter, HTTPException, Depends
 from app.schemas import PasswordUpdateModel, UserCreate, UserLogin, UserPublicModel
 from app.crud import create_user, authenticate_user
+from app.models.redis_config import redis_client
 from app.models.shensimodels import KeyModel, User_Pydantic, UserModel
 from passlib.context import CryptContext
 from app.dependencies import create_access_token, get_current_user
-from app.api.api_v1.endpoints.utils.smsverify import send_verification_code, validate_verification_code,authenticate_user_with_code
+from app.api.api_v1.endpoints.utils.smsverify import send_verification_code, store_verification_code, validate_verification_code
 from starlette import status
 import random
 import string
-
 from app.dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
-
+# 配置日志
+logging.basicConfig(level=logging.INFO)
 router = APIRouter()
+
+
 @router.get("/users/me")
 async def read_users_me(current_user: UserModel = Depends(get_current_user)):
     # 获取用户基本信息
@@ -35,7 +39,7 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
     bound_keys = await KeyModel.filter(user_id=current_user.id).all()
 
     # 将每个key的字符串值添加到列表中
-    keys_info = ['sk-'+key.key for key in bound_keys]
+    keys_info = ['sk-' + key.key for key in bound_keys]
 
     # 将keys信息添加到响应中
     user_dict['bound_keys'] = keys_info
@@ -43,44 +47,47 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
     return UserPublicModel(**user_dict)
 
 
-
 @router.post("/users/send_verify_code")
-async def send_verify_code(request: Request, mobile: str):#, captcha_input: str
+async def send_verify_code(request: Request, mobile: str, captcha_input: str):
     """
-    向指定的手机号发送验证码，并要求验证图形验证码。
+    向指定手机号发送6位数字验证码，并验证图形验证码的正确性。
+    在使用该接口前 先使用/captcha/{phone_number}获取对应手机号码的验证码
+    步骤:
+    1. 验证用户提交的图形验证码是否正确。
+    2. 生成一个随机的6位数字验证码。
+    3. 将验证码和手机号关联后存储到Redis中，并设置过期时间。
+    4. 调用短信服务API发送验证码到用户手机。
 
-    参数:
-    - mobile (str): 要发送验证码的手机号码。
+    请求参数:
+    - mobile (str): 用户的手机号码。
     - captcha_input (str): 用户输入的图形验证码。
 
-    异常:
-    - HTTPException: 400 错误，手机号已经注册或图形验证码错误。
-    - HTTPException: 500 错误，发送验证码时出错。
-
     返回:
-    - dict: 成功发送验证码的确认消息。
+    - 成功：返回"Verification code sent successfully."消息。
+    - 失败：返回相应的错误信息。
     """
+    # 生成图形验证码的键
+    captcha_key = f"captcha:{mobile}"
+
+    # 从 Redis 中获取与手机号关联的图形验证码
+    stored_captcha_code = redis_client.get(captcha_key)
+
     # 验证图形验证码
-    # stored_captcha_text = request.session.get('captcha_text')
-    # if not stored_captcha_text or captcha_input.lower() != stored_captcha_text.lower():
-    #     raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
+    if not stored_captcha_code or captcha_input.lower() != stored_captcha_code.lower():
+        raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
 
-    # # 清除会话中的验证码，防止重复使用
-    # request.session.pop('captcha_text', None)
-
-    # 检查手机号是否已经注册
-    existing_user = await UserModel.get_or_none(phone_number=mobile)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Mobile number already registered")
+    # 清除 Redis 中的图形验证码，防止重复使用
+    redis_client.delete(captcha_key)
 
     try:
-        # 发送手机验证码
+        verification_code = ''.join(random.choices(string.digits, k=6))
+        store_verification_code(mobile, verification_code)  # 将验证码存储到 Redis
         await send_verification_code(mobile)
         return {"message": "Verification code sent successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    
+
 @router.post("/users/register", response_model=User_Pydantic)
 async def register_user(user: UserCreate):
     """
@@ -93,7 +100,7 @@ async def register_user(user: UserCreate):
     existing_user = await UserModel.get_or_none(phone_number=user.phone_number)
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
-    
+
     # 验证验证码
     if not await validate_verification_code(user.phone_number, user.verification_code):
         raise HTTPException(status_code=400, detail="Invalid verification code")
@@ -106,19 +113,37 @@ async def register_user(user: UserCreate):
     return await User_Pydantic.from_tortoise_orm(db_user)
 
 
+
+
 @router.post("/users/login")
 async def login_for_access_token(form_data: UserLogin):
     """
-    验证用户并提供访问令牌。
+    验证用户并提供访问令牌。支持使用密码或验证码登录。
+
+    请求参数:
+    - form_data: 包含登录信息的对象，可能包括密码或验证码。
+
+    返回:
+    - 成功: 返回包含访问令牌的 JSON 对象。
+    - 失败: 返回 401 错误，提示登录信息不正确。
     """
     user = None
     if form_data.password:
         # 使用密码登录
         user = await authenticate_user(form_data.login, form_data.password)
     elif form_data.verification_code:
-        # 使用验证码登录
-        user = await authenticate_user_with_code(form_data.login, form_data.verification_code)
-    
+        # 验证验证码是否正确
+        if await validate_verification_code(form_data.login, form_data.verification_code):
+            # 如果验证码正确，根据登录信息（手机号或邮箱）获取用户对象
+            user = await UserModel.get_or_none(phone_number=form_data.login) or \
+                   await UserModel.get_or_none(email=form_data.login)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid verification code",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -126,6 +151,7 @@ async def login_for_access_token(form_data: UserLogin):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # 创建访问令牌
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = await create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
@@ -156,6 +182,8 @@ async def update_username(user_id: int, new_username: str, current_user: UserMod
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 @router.put("/users/update-password")
 async def update_password(password_update: PasswordUpdateModel, current_user: UserModel = Depends(get_current_user)):
     """
@@ -171,6 +199,7 @@ async def update_password(password_update: PasswordUpdateModel, current_user: Us
     await current_user.save()
 
     return {"message": "Password updated successfully"}
+
 
 @router.delete("/users/{user_id}/keys/{key_id}")
 async def delete_user_key(user_id: int, key_id: int, current_user: UserModel = Depends(get_current_user)):

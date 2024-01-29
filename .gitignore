@@ -1,7 +1,7 @@
 # Python compiled files
 __pycache__/
 *.pyc
-
+.env
 # Log files
 *.log
 
