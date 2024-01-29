@@ -159,26 +159,30 @@ async def login_for_access_token(form_data: UserLogin):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+from fastapi import HTTPException, Depends, APIRouter
+from models import UserModel  # 假设这是你的模型导入
 
-@router.put("/users/{user_id}/username")
-async def update_username(user_id: int, new_username: str, current_user: UserModel = Depends(get_current_user)):
+router = APIRouter()
+
+@router.put("/username")
+async def update_username(new_username: str, current_user: UserModel = Depends(get_current_user)):
     """
-    更新特定用户的用户名。
+    更新当前用户的用户名。
     
+    参数:
+    - new_username (str): 新的用户名。
+
     返回:
     - dict: 用户名更新成功的消息。
     """
-    if user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not allowed to update this user's username")
-
-    user = await UserModel.get(id=user_id)
     # 检查新用户名是否已被占用
     if await UserModel.filter(username=new_username).exists():
         raise HTTPException(status_code=400, detail="Username is already taken")
 
-    user.username = new_username
-    await user.save()
+    current_user.username = new_username
+    await current_user.save()
     return {"message": "Username updated successfully"}
+
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -201,28 +205,22 @@ async def update_password(password_update: PasswordUpdateModel, current_user: Us
     return {"message": "Password updated successfully"}
 
 
-@router.delete("/users/{user_id}/keys/{key_id}")
-async def delete_user_key(user_id: int, key_id: int, current_user: UserModel = Depends(get_current_user)):
+@router.delete("/keys/{key_id}")
+async def delete_user_key(key_id: int, current_user: UserModel = Depends(get_current_user)):
     """
-    删除用户绑定的特定key。
+    删除当前用户绑定的特定key。
 
     参数:
-    - user_id (int): 用户ID。
     - key_id (int): 要删除的key的ID。
 
     异常:
-    - HTTPException: 403 错误，如果请求者没有权限删除这个key。
-    - HTTPException: 404 错误，如果找不到指定的key或key不属于该用户。
+    - HTTPException: 404 错误，如果找不到指定的key或key不属于当前用户。
 
     返回:
     - dict: 成功删除key的确认消息。
     """
-    # 验证是否有权删除这个key
-    if user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="You do not have permission to delete this key")
-
-    # 查找要删除的key
-    key_to_delete = await KeyModel.get_or_none(id=key_id, user_id=user_id)
+    # 查找要删除的key，确保它属于当前用户
+    key_to_delete = await KeyModel.get_or_none(id=key_id, user_id=current_user.id)
     if not key_to_delete:
         raise HTTPException(status_code=404, detail="Key not found or not owned by the user")
 
