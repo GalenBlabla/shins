@@ -113,8 +113,6 @@ async def register_user(user: UserCreate):
     return await User_Pydantic.from_tortoise_orm(db_user)
 
 
-
-
 @router.post("/users/login")
 async def login_for_access_token(form_data: UserLogin):
     """
@@ -159,10 +157,7 @@ async def login_for_access_token(form_data: UserLogin):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-from fastapi import HTTPException, Depends, APIRouter
-from models import UserModel  # 假设这是你的模型导入
 
-router = APIRouter()
 
 @router.put("/username")
 async def update_username(new_username: str, current_user: UserModel = Depends(get_current_user)):
