@@ -46,6 +46,8 @@ services:
       MYSQL_USER: oneapi   # 创建专用用户
       MYSQL_PASSWORD: '123456'    # 设置专用用户密码
       MYSQL_DATABASE: one-api   # 自动创建数据库
+    ports:
+      - "3306:3307"
   shensi-db:
     image: mysql:8.2.0
     container_name: ShenSiMysql
