@@ -32,8 +32,8 @@ services:
     image: redis:latest
     container_name: redis
     restart: always
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
   db:
     image: mysql:8.2.0
     restart: always
@@ -42,16 +42,17 @@ services:
       - ./data/mysql:/var/lib/mysql  # 挂载目录，持久化存储
     environment:
       TZ: Asia/Shanghai   # 设置时区
-      MYSQL_ROOT_PASSWORD: 'OneAPI@justsong' # 设置 root 用户的密码
-      MYSQL_USER: oneapi   # 创建专用用户
-      MYSQL_PASSWORD: '123456'    # 设置专用用户密码
+      MYSQL_ROOT_PASSWORD: 'mysql@Shensi2024' # 设置 root 用户的密码
+      MYSQL_USER: hailong   # 创建专用用户
+      MYSQL_PASSWORD: 'mysql@Shensi2024'    # 设置专用用户密码
       MYSQL_DATABASE: one-api   # 自动创建数据库
-    ports:
-      - "3307:3306"
+    # ports:
+    #   - "3307:3306"
   shensi-db:
     image: mysql:8.2.0
     container_name: ShenSiMysql
     environment:
+      - TZ=Asia/Shanghai   # 设置时区
       - MYSQL_ROOT_PASSWORD=mysql@Shensi2024
       - MYSQL_DATABASE=ShenSiDB
       - MYSQL_USER=hailong
@@ -59,8 +60,8 @@ services:
       - lower_case_table_names=1
     volumes:
       - ./data/shensi-mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
   shensibackend:
     build: 
       context: ../shensibackend/app
