@@ -5,11 +5,10 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, constr
 
 class UserCreate(BaseModel):
-    username:str
+    username: str
     email: EmailStr
     phone_number: Optional[str] = None
     password: str
-    verification_code: str
 
 
 class UserLogin(BaseModel):

@@ -91,19 +91,19 @@ async def send_verify_code(request: Request, mobile: str, captcha_input: str):
 @router.post("/users/register", response_model=User_Pydantic)
 async def register_user(user: UserCreate):
     """
-    使用给定的用户信息注册新用户。
+    使用给定的用户信息注册新用户，无需验证码验证。
     
     异常:
-    - HTTPException: 400 错误，用户已存在或验证码无效。
+    - HTTPException: 400 错误，如果用户已存在。
     """
     # 检查用户是否已存在
     existing_user = await UserModel.get_or_none(phone_number=user.phone_number)
     if existing_user:
-        raise HTTPException(status_code=400, detail="User already exists")
-
-    # 验证验证码
-    if not await validate_verification_code(user.phone_number, user.verification_code):
-        raise HTTPException(status_code=400, detail="Invalid verification code")
+        raise HTTPException(status_code=400, detail="User with this phone number already exists")
+    
+    existing_user = await UserModel.get_or_none(email=user.email)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
 
     # 生成随机昵称（如果用户未提供）
     username = user.username if user.username else ''.join(random.choices(string.ascii_letters + string.digits, k=8))
