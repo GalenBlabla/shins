@@ -1,6 +1,5 @@
 # API endpoints for the 'item' resource.
-from fastapi import APIRouter,HTTPException
-from app.models import shensimodels, oneapimodels
+from fastapi import APIRouter
 router = APIRouter()
 
 @router.get("/items/")

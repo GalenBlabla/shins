@@ -1,21 +1,26 @@
 # FastAPI application main file.
 import os
 from dotenv import load_dotenv
-import redis
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.api_v1.endpoints import VerifyCode
-from app.api.api_v1.endpoints import keyserver
-
-from app.models import shensimodels,oneapimodels  # 导入您的模型
-from app.api.api_v1.endpoints import user, item, token  # 导入您的路由
+from app.api.api_v1.endpoints import (
+    user,
+    item,
+    token,
+    keyserver,
+    VerifyCode
+)   # 导入您的路由
+from app.api.api_v1.admin import admins
 from starlette.middleware.sessions import SessionMiddleware
 load_dotenv()
 app = FastAPI()
 # 配置SessionMiddleware，设置密钥和会话cookie的名称
-app.add_middleware(SessionMiddleware, secret_key="your_secret_key", session_cookie="session")
+app.add_middleware(SessionMiddleware,
+                   secret_key="your_secret_key", session_cookie="session")
 # 示例路由
+
+
 @app.get("/")
 async def read_root():
     return {"Hello": "World"}
@@ -26,6 +31,7 @@ app.include_router(item.router)
 app.include_router(token.router)
 app.include_router(keyserver.router)
 app.include_router(VerifyCode.router)
+app.include_router(admins.router)
 
 # 添加 CORS 中间件
 app.add_middleware(
@@ -40,13 +46,14 @@ app.add_middleware(
 tortoise_config = {
     "connections": {
         "shensidb": f"mysql://{os.getenv('DB_SHENSI_USER')}:{os.getenv('DB_SHENSI_PASSWORD')}@{os.getenv('DB_SHENSI_HOST')}:3306/{os.getenv('DB_SHENSI_NAME')}",
-        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3306/{os.getenv('DB_ONEAPI_NAME')}"
+        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3307/{os.getenv('DB_ONEAPI_NAME')}"
     },
     "apps": {
         "shensidb_app": {"models": ["app.models.shensimodels"], "default_connection": "shensidb"},
         "oneapidb_app": {"models": ["app.models.oneapimodels"], "default_connection": "oneapidb"}
     }
 }
+
 print(os.getenv('SHENSI_MYSQL_DATABASE'))
 register_tortoise(
     app,

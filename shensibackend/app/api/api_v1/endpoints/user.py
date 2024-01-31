@@ -188,8 +188,9 @@ async def update_password(password_update: PasswordUpdateModel, current_user: Us
     """
     改密码
     """
+
     # 验证旧密码
-    if not pwd_context.verify(password_update.old_password, current_user.hashed_password):
+    if not pwd_context.verify(password_update.old_password, current_user.hashed_password): 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
 
     # 更新密码
@@ -202,6 +203,7 @@ async def update_password(password_update: PasswordUpdateModel, current_user: Us
 
 @router.delete("/keys/{key_id}")
 async def delete_user_key(key_id: int, current_user: UserModel = Depends(get_current_user)):
+
     """
     删除当前用户绑定的特定key。
 
@@ -214,6 +216,7 @@ async def delete_user_key(key_id: int, current_user: UserModel = Depends(get_cur
     返回:
     - dict: 成功删除key的确认消息。
     """
+
     # 查找要删除的key，确保它属于当前用户
     key_to_delete = await KeyModel.get_or_none(id=key_id, user_id=current_user.id)
     if not key_to_delete:
