@@ -39,7 +39,6 @@ app.add_middleware(
     allow_methods=["*"],  # 允许所有方法（GET, POST, PUT, DELETE 等）
     allow_headers=["*"],  # 允许所有头部
 )
-
 # Tortoise-ORM 配置
 tortoise_config = {
     "connections": {
@@ -52,7 +51,6 @@ tortoise_config = {
     }
 }
 
-print(os.getenv('SHENSI_MYSQL_DATABASE'))
 register_tortoise(
     app,
     config=tortoise_config,
