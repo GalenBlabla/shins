@@ -11,7 +11,6 @@ from app.api.api_v1.endpoints import (
     keyserver,
     VerifyCode
 )   # 导入您的路由
-from app.api.api_v1.admin import admins
 from starlette.middleware.sessions import SessionMiddleware
 load_dotenv()
 app = FastAPI()
@@ -31,7 +30,6 @@ app.include_router(item.router)
 app.include_router(token.router)
 app.include_router(keyserver.router)
 app.include_router(VerifyCode.router)
-app.include_router(admins.router)
 
 # 添加 CORS 中间件
 app.add_middleware(
