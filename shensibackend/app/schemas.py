@@ -1,5 +1,6 @@
 ### 2. `schemas.py`
 # 这个文件包含用于验证和序列化数据的 Pydantic 模型（schemas）。我们将创建用于用户注册、登录和更新密钥的模型。
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, constr
@@ -59,3 +60,18 @@ class SMSVerificationRequest(BaseModel):
 class CaptchaVerificationRequest(BaseModel):
     mobile: str = Field(..., pattern=r"^1[3-9]\d{9}$")  # 中国大陆手机号
     captcha_input: constr(min_length=4, max_length=6)  # 图片验证码长度假设为4到6个字符
+
+
+class KeyIn_Pydantic(BaseModel):
+    key: str = Field(..., max_length=100, description="The unique key string")
+    is_active: bool = Field(
+        default=True, description="Indicates if the key is active")
+
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "key": "your_unique_key_string",
+                "is_active": True
+            }
+        }

@@ -1,12 +1,15 @@
 # API endpoints for the 'user' resource.
+import os
 import random
 import string
 from datetime import timedelta
+import time
 from typing import Optional
 from starlette.requests import Request
 import logging
 
 from fastapi import APIRouter, HTTPException, Depends
+from tortoise import Tortoise, transactions
 from app.schemas import PasswordUpdateModel, UserCreate, UserLogin, UserPublicModel
 from app.crud import create_user, authenticate_user
 from app.models.redis_config import redis_client
@@ -18,6 +21,8 @@ from starlette import status
 import random
 import string
 from app.dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.models.oneapimodels import Tokens, Users
+from app.api.api_v1.endpoints.utils.generate_key import generate_key
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 router = APIRouter()
@@ -88,28 +93,75 @@ async def send_verify_code(request: Request, mobile: str, captcha_input: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# 创建CryptContext实例
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 @router.post("/users/register", response_model=User_Pydantic)
 async def register_user(user: UserCreate):
     """
     使用给定的用户信息注册新用户，无需验证码验证。
-    
+
     异常:
     - HTTPException: 400 错误，如果用户已存在。
     """
-    # 检查用户是否已存在
-    existing_user = await UserModel.get_or_none(phone_number=user.phone_number)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User with this phone number already exists")
-    
-    existing_user = await UserModel.get_or_none(email=user.email)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User with this email already exists")
+    async with transactions.in_transaction("shensidb") as shensidb_conn:
+        async with transactions.in_transaction("oneapidb") as oneapidb_conn:
 
-    # 生成随机昵称（如果用户未提供）
-    username = user.username if user.username else ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            # 检查用户是否已存在
+            existing_user = await UserModel.get_or_none(phone_number=user.phone_number)
+            if existing_user:
+                raise HTTPException(
+                    status_code=400, detail="User with this phone number already exists")
 
-    # 创建用户
-    db_user = await create_user(user.email, user.phone_number, user.password, username)
+            existing_user = await UserModel.get_or_none(email=user.email)
+            if existing_user:
+                raise HTTPException(
+                    status_code=400, detail="User with this email already exists")
+
+            # 生成随机昵称（如果用户未提供）
+            username = user.username if user.username else ''.join(
+                random.choices(string.ascii_letters + string.digits, k=8))
+
+            # 创建用户
+            db_user = await create_user(user.email, user.phone_number, user.password, username)
+
+            oneapi_user = await Users.create(
+                username=user.username,
+                password=db_user.hashed_password,  # 直接使用shensidb中的哈希密码
+                display_name=user.username,  # display_name设置为与username相同
+                role=1,
+                status=1,  # 根据is_active字段设置status
+                email=user.email,
+                wechat_id=user.phone_number,  # 复制手机号
+                quota=os.getenv('QUOTA'),  # 设置quota为5000000
+                used_quota=0,  # 设置used_quota为0
+                request_count=0,  # 设置request_count为0
+                # 其他字段根据需要设置或保留默认值
+                # using_db=oneapidb_conn
+            )
+
+            # 生成API key
+            api_key = generate_key()
+            # 在shensidb中为用户生成API key
+            await KeyModel.create(
+                user_id=db_user.id,
+                key=api_key,
+                # 其他字段根据需要设置或保留默认值
+                # using_db=shensidb_conn
+            )
+
+            # 在oneapidb中为用户生成API key
+            await Tokens.create(
+                user_id=oneapi_user.id,  # 假设oneapidb中的用户ID与shensidb中的相同
+                key=api_key,
+                name="默认apikey",
+                remain_quota=os.getenv('QUOTA'),
+                created_time=int(time.time()),  # 当前时间戳
+                accessed_time=int(time.time()),  # 当前时间戳，或根据需要设置
+                # 其他字段根据需要设置或保留默认值
+                using_db=oneapidb_conn
+            )
     return await User_Pydantic.from_tortoise_orm(db_user)
 
 
@@ -134,7 +186,7 @@ async def login_for_access_token(form_data: UserLogin):
         if await validate_verification_code(form_data.login, form_data.verification_code):
             # 如果验证码正确，根据登录信息（手机号或邮箱）获取用户对象
             user = await UserModel.get_or_none(phone_number=form_data.login) or \
-                   await UserModel.get_or_none(email=form_data.login)
+                await UserModel.get_or_none(email=form_data.login)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -157,13 +209,11 @@ async def login_for_access_token(form_data: UserLogin):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-
-
 @router.put("/username")
 async def update_username(new_username: str, current_user: UserModel = Depends(get_current_user)):
     """
     更新当前用户的用户名。
-    
+
     参数:
     - new_username (str): 新的用户名。
 
@@ -172,12 +222,12 @@ async def update_username(new_username: str, current_user: UserModel = Depends(g
     """
     # 检查新用户名是否已被占用
     if await UserModel.filter(username=new_username).exists():
-        raise HTTPException(status_code=400, detail="Username is already taken")
+        raise HTTPException(
+            status_code=400, detail="Username is already taken")
 
     current_user.username = new_username
     await current_user.save()
     return {"message": "Username updated successfully"}
-
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -190,8 +240,9 @@ async def update_password(password_update: PasswordUpdateModel, current_user: Us
     """
 
     # 验证旧密码
-    if not pwd_context.verify(password_update.old_password, current_user.hashed_password): 
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
+    if not pwd_context.verify(password_update.old_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
 
     # 更新密码
     hashed_new_password = pwd_context.hash(password_update.new_password)
@@ -220,10 +271,10 @@ async def delete_user_key(key_id: int, current_user: UserModel = Depends(get_cur
     # 查找要删除的key，确保它属于当前用户
     key_to_delete = await KeyModel.get_or_none(id=key_id, user_id=current_user.id)
     if not key_to_delete:
-        raise HTTPException(status_code=404, detail="Key not found or not owned by the user")
+        raise HTTPException(
+            status_code=404, detail="Key not found or not owned by the user")
 
     # 从数据库中删除key
     await key_to_delete.delete()
 
     return {"message": "Key deleted successfully"}
-
