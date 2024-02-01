@@ -42,10 +42,10 @@ services:
       - ./data/mysql:/var/lib/mysql  # 挂载目录，持久化存储
     environment:
       TZ: Asia/Shanghai   # 设置时区
-      MYSQL_ROOT_PASSWORD: 'mysql@Shensi2024' # 设置 root 用户的密码
-      MYSQL_USER: hailong   # 创建专用用户
-      MYSQL_PASSWORD: 'mysql@Shensi2024'    # 设置专用用户密码
-      MYSQL_DATABASE: one-api   # 自动创建数据库
+      # MYSQL_ROOT_PASSWORD: 'mysql@Shensi2024' # 设置 root 用户的密码
+      # MYSQL_USER: hailong   # 创建专用用户
+      # MYSQL_PASSWORD: 'mysql@Shensi2024'    # 设置专用用户密码
+      # MYSQL_DATABASE: one-api   # 自动创建数据库
     # ports:
     #   - "3307:3306"
   shensi-db:
@@ -53,10 +53,10 @@ services:
     container_name: ShenSiMysql
     environment:
       - TZ=Asia/Shanghai   # 设置时区
-      - MYSQL_ROOT_PASSWORD=mysql@Shensi2024
-      - MYSQL_DATABASE=ShenSiDB
-      - MYSQL_USER=hailong
-      - MYSQL_PASSWORD=mysql@Shensi2024
+      # - MYSQL_ROOT_PASSWORD=mysql@Shensi2024
+      # - MYSQL_DATABASE=ShenSiDB
+      # - MYSQL_USER=hailong
+      # - MYSQL_PASSWORD=mysql@Shensi2024
       - lower_case_table_names=1
     volumes:
       - ./data/shensi-mysql-data:/var/lib/mysql
