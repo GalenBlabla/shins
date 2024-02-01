@@ -32,8 +32,8 @@ app.include_router(item.router)
 app.include_router(token.router)
 app.include_router(keyserver.router)
 app.include_router(VerifyCode.router)
-app.include_router(admin.router)
-app.include_router(dashboard.router)
+# app.include_router(admin.router)
+# app.include_router(dashboard.router)
 
 # 添加 CORS 中间件
 app.add_middleware(
@@ -47,7 +47,7 @@ app.add_middleware(
 tortoise_config = {
     "connections": {
         "shensidb": f"mysql://{os.getenv('DB_SHENSI_USER')}:{os.getenv('DB_SHENSI_PASSWORD')}@{os.getenv('DB_SHENSI_HOST')}:3306/{os.getenv('DB_SHENSI_NAME')}",
-        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3306/{os.getenv('DB_ONEAPI_NAME')}"
+        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3307/{os.getenv('DB_ONEAPI_NAME')}"
     },
     "apps": {
         "shensidb_app": {"models": ["app.models.shensimodels"], "default_connection": "shensidb"},
