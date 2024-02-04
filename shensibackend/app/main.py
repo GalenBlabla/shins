@@ -48,8 +48,8 @@ app.add_middleware(
 # Tortoise-ORM 配置
 tortoise_config = {
     "connections": {
-        "shensidb": f"mysql://{os.getenv('DB_SHENSI_USER')}:{os.getenv('DB_SHENSI_PASSWORD')}@{os.getenv('DB_SHENSI_HOST')}:3306/{os.getenv('DB_SHENSI_NAME')}",
-        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3307/{os.getenv('DB_ONEAPI_NAME')}"
+        "shensidb": f"mysql://{os.getenv('DB_SHENSI_USER')}:{os.getenv('DB_SHENSI_PASSWORD')}@{os.getenv('DB_SHENSI_HOST')}:{os.getenv('ShenSiDB_PORT')}/{os.getenv('DB_SHENSI_NAME')}",
+        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:{os.getenv('oneapiDB_PORT')}/{os.getenv('DB_ONEAPI_NAME')}"
     },
     "apps": {
         "shensidb_app": {"models": ["app.models.shensimodels"], "default_connection": "shensidb"},
