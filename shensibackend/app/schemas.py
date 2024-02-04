@@ -1,9 +1,10 @@
-### 2. `schemas.py`
+# 2. `schemas.py`
 # 这个文件包含用于验证和序列化数据的 Pydantic 模型（schemas）。我们将创建用于用户注册、登录和更新密钥的模型。
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, constr
+
 
 class UserCreate(BaseModel):
     username: str
@@ -17,17 +18,22 @@ class UserLogin(BaseModel):
     password: Optional[str] = None
     verification_code: Optional[str] = None
 
+
 class KeyCreate(BaseModel):
     key: str
 
+
 class KeyUpdate(BaseModel):
     key: str
-    
+
+
 class TokenData(BaseModel):
     username: str | None = None
 
+
 class BindKeyRequest(BaseModel):
     key: str
+
 
 class UserTokenData(BaseModel):
     user_id: int
@@ -40,6 +46,7 @@ class UserTokenData(BaseModel):
     remain_quota: int
     unlimited_quota: bool
 
+
 class UserPublicModel(BaseModel):
     id: int
     username: str
@@ -49,13 +56,16 @@ class UserPublicModel(BaseModel):
     is_superuser: bool
     bound_keys: Optional[List[str]] = []
 
+
 class PasswordUpdateModel(BaseModel):
     old_password: str
     new_password: str
 
+
 class SMSVerificationRequest(BaseModel):
     mobile: str = Field(..., pattern=r"^1[3-9]\d{9}$")  # 中国大陆手机号
     sms_code: constr(min_length=6, max_length=6)  # 短信验证码为6位数字]
+
 
 class CaptchaVerificationRequest(BaseModel):
     mobile: str = Field(..., pattern=r"^1[3-9]\d{9}$")  # 中国大陆手机号

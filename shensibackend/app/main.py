@@ -9,9 +9,10 @@ from app.api.api_v1.endpoints import (
     item,
     token,
     keyserver,
-    VerifyCode
+    VerifyCode,
 )   # 导入您的路由
-from app.api.api_v1.admin import admin
+from app.payment import alipayment
+# from app.api.api_v1.admin import admin
 from starlette.middleware.sessions import SessionMiddleware
 from app.api.api_v1.admin.dashborad import dashboard
 load_dotenv()
@@ -33,7 +34,8 @@ app.include_router(token.router)
 app.include_router(keyserver.router)
 app.include_router(VerifyCode.router)
 # app.include_router(admin.router)
-# app.include_router(dashboard.router)
+app.include_router(dashboard.router)
+app.include_router(alipayment.router)
 
 # 添加 CORS 中间件
 app.add_middleware(
@@ -47,7 +49,7 @@ app.add_middleware(
 tortoise_config = {
     "connections": {
         "shensidb": f"mysql://{os.getenv('DB_SHENSI_USER')}:{os.getenv('DB_SHENSI_PASSWORD')}@{os.getenv('DB_SHENSI_HOST')}:3306/{os.getenv('DB_SHENSI_NAME')}",
-        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3306/{os.getenv('DB_ONEAPI_NAME')}"
+        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:3307/{os.getenv('DB_ONEAPI_NAME')}"
     },
     "apps": {
         "shensidb_app": {"models": ["app.models.shensimodels"], "default_connection": "shensidb"},
