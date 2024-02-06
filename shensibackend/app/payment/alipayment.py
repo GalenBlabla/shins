@@ -9,11 +9,16 @@ from alipay.aop.api.domain.AlipayTradePagePayModel import AlipayTradePagePayMode
 from alipay.aop.api.request.AlipayTradePagePayRequest import AlipayTradePagePayRequest
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from app.payment.utils.generate_order_number import generate_order_number
+from app.payment.utils.verify_alipay_signature import verify_alipay_signature
 from tortoise.transactions import in_transaction
 
 from app.dependencies import get_current_user
 from app.models.shensimodels import OrderModel, UserModel
-
+from fastapi import APIRouter, HTTPException, Request, Depends
+from alipay.aop.api.response.AlipayTradePagePayResponse import AlipayTradePagePayResponse
+from app.models.shensimodels import OrderModel, UserModel
+from app.dependencies import get_current_user
+import json
 load_dotenv()
 
 # 配置支付宝客户端
@@ -50,7 +55,6 @@ async def pay(
             body=body,
             status="PENDING"
         )
-
     client = DefaultAlipayClient(alipay_client_config=alipay_client_config)
     model = AlipayTradePagePayModel()
     model.out_trade_no = out_trade_no
@@ -64,9 +68,53 @@ async def pay(
     pay_request.return_url = os.getenv("ALIPAY_RETURN_URL")
     # 或使用 settings.ALIPAY_NOTIFY_URL
     pay_request.notify_url = os.getenv("ALIPAY_NOTIFY_URL")
-
     # 如果http_method是GET，则是一个带完成请求参数的url，如果http_method是POST，则是一段HTML表单片段
     response = client.page_execute(pay_request, http_method="GET")
-
     # 可以根据需要返回完整的URL或HTML表单片段
     return {"url": response}
+
+
+
+
+@router.post("/payment/notify")
+async def payment_notify(request: Request):
+    """
+    支付宝支付结果通知接口。
+    当支付宝支付成功后，支付宝会向该接口发送通知。
+
+    步骤:
+    1. 解析请求体中的数据。
+    2. 验证通知数据的签名确保数据的真实性。
+    3. 检查订单状态，避免重复处理。
+    4. 更新订单状态和用户余额。
+    5. 返回成功响应给支付宝。
+    """
+    # 解析支付宝发送的通知数据
+    data = await request.form()
+    data_dict = dict(data)
+    print(data_dict)
+
+    # 验证通知数据的签名确保数据的真实性
+    if not verify_alipay_signature(data_dict):
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    # 检查订单状态，避免重复处理
+    out_trade_no = data_dict.get('out_trade_no')
+    async with in_transaction('shensidb') as conn:
+        order = await OrderModel.get_or_none(out_trade_no=out_trade_no).using_db(conn)
+        if not order or order.status == "COMPLETED":
+            # 如果订单不存在或已处理，则返回成功响应给支付宝
+            return "success"
+
+        # 更新订单状态和用户余额
+        if data_dict.get('trade_status') in ["TRADE_FINISHED", "TRADE_SUCCESS"]:
+            order.status = "COMPLETED"
+            await order.save(using_db=conn)
+
+            user = await UserModel.get(id=order.user_id).using_db(conn)
+            user.balance += order.total_amount  # 假设 UserModel 有一个余额字段
+            await user.save(using_db=conn)
+
+    # 返回成功响应给支付宝
+    return "success"
+
