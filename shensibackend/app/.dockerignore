@@ -28,7 +28,7 @@ dist
 .idea
 *.swp
 *~
-
+dcokerfiles/
 # 忽略测试文件和目录
 tests/
 *.test
