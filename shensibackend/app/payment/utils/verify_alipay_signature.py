@@ -25,7 +25,9 @@ def verify_alipay_signature(data):
     sign = data_dict.pop('sign', None)
     # 忽略空值和签名类型，构造待验签的内容
     ordered_data = OrderedDict(sorted(data_dict.items()))
-    message = "&".join(f"{k}={quote_plus(v)}" for k, v in ordered_data.items() if v != '')
+    # message = "&".join(f"{k}={quote_plus(v)}" for k, v in ordered_data.items() if v != '')
+    # 在构造待验签字符串时确保编码为字节串
+    message = "&".join(f"{k}={quote_plus(v)}" for k, v in ordered_data.items() if v != '').encode('utf-8')
 
     # 验证通知数据的签名确保数据的真实性
     public_key = os.getenv("ALIPAY_PUBLIC_KEY")  # 替换为您的支付宝公钥
