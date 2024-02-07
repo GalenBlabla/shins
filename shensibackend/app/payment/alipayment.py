@@ -127,7 +127,7 @@ async def payment_notify(request: Request):
             await order.save(using_db=conn)
 
             user = await Tokens.get(id=order.user_id)
-            user.remain_quota += order.total_amount  # 假设 UserModel 有一个余额字段
+            user.remain_quota += (order.total_amount * int(os.getenv("QUOTA")))  # 假设 UserModel 有一个余额字段
             await user.save()
 
     logger.info("Alipay notification processed successfully.")
