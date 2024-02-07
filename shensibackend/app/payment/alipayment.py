@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 import random
 from dotenv import load_dotenv
+import logging
 
 from fastapi import APIRouter, Depends
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
@@ -76,6 +77,9 @@ async def pay(
 
 
 
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 @router.post("/payment/notify")
 async def payment_notify(request: Request):
     """
@@ -92,22 +96,30 @@ async def payment_notify(request: Request):
     # 解析支付宝发送的通知数据
     data = await request.form()
     data_dict = dict(data)
-    print(data_dict)
+    logger.info(f"Received Alipay notification: {data_dict}")
 
     # 验证通知数据的签名确保数据的真实性
     if not verify_alipay_signature(data_dict):
+        logger.error("Invalid signature in Alipay notification.")
         raise HTTPException(status_code=400, detail="Invalid signature")
 
     # 检查订单状态，避免重复处理
     out_trade_no = data_dict.get('out_trade_no')
     async with in_transaction('shensidb') as conn:
         order = await OrderModel.get_or_none(out_trade_no=out_trade_no).using_db(conn)
-        if not order or order.status == "COMPLETED":
-            # 如果订单不存在或已处理，则返回成功响应给支付宝
+        logger.info(f"Order: {order}")
+        if not order:
+            # 如果订单不存在
+            logger.warning(f"Order not found: {out_trade_no}")
+            raise HTTPException(status_code=404, detail="Order not found")
+        elif order.status == "COMPLETED":
+            # 如果订单已处理，则返回成功响应给支付宝
+            logger.info(f"Order already completed: {out_trade_no}")
             return "success"
 
         # 更新订单状态和用户余额
-        if data_dict.get('trade_status') in ["TRADE_FINISHED", "TRADE_SUCCESS"]:
+        if data_dict.get('trade_status') == "TRADE_SUCCESS":
+            logger.info(f"Updating order and user balance for: {out_trade_no}")
             order.status = "COMPLETED"
             await order.save(using_db=conn)
 
@@ -115,6 +127,6 @@ async def payment_notify(request: Request):
             user.balance += order.total_amount  # 假设 UserModel 有一个余额字段
             await user.save(using_db=conn)
 
+    logger.info("Alipay notification processed successfully.")
     # 返回成功响应给支付宝
     return "success"
-
