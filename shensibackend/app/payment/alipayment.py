@@ -20,6 +20,9 @@ from alipay.aop.api.response.AlipayTradePagePayResponse import AlipayTradePagePa
 from app.models.shensimodels import OrderModel, UserModel
 from app.dependencies import get_current_user
 import json
+
+from app.models.oneapimodels import Tokens
+
 load_dotenv()
 
 # 配置支付宝客户端
@@ -123,8 +126,8 @@ async def payment_notify(request: Request):
             order.status = "COMPLETED"
             await order.save(using_db=conn)
 
-            user = await UserModel.get(id=order.user_id).using_db(conn)
-            user.balance += order.total_amount  # 假设 UserModel 有一个余额字段
+            user = await Tokens.get(id=order.user_id)
+            user.remain_quota += order.total_amount  # 假设 UserModel 有一个余额字段
             await user.save(using_db=conn)
 
     logger.info("Alipay notification processed successfully.")
