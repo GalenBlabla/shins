@@ -11,7 +11,7 @@ from app.api.api_v1.endpoints import (
     keyserver,
     VerifyCode,
 )   # 导入您的路由
-from app.payment import alipayment
+from app.api.api_v1.payment import alipayment
 # from app.api.api_v1.admin import admin
 from starlette.middleware.sessions import SessionMiddleware
 from app.api.api_v1.admin.dashborad import dashboard

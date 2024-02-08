@@ -1,17 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
-from starlette.requests import Request
 from captcha.image import ImageCaptcha
-import random
-import string
-from io import BytesIO
-import base64
 
-from app.api.api_v1.endpoints.utils.smsverify import store_captcha_code
-from app.api.api_v1.endpoints.utils.generate_random_code import generate_random_code
+from app.services.verification_service import store_captcha_code,generate_verification_code
 
 
-router = APIRouter()
+router = APIRouter(tags=["Captcha"])
 
 @router.get("/captcha/{phone_number}")
 async def get_captcha(phone_number: str):
@@ -30,7 +24,7 @@ async def get_captcha(phone_number: str):
     返回:
     - 图形验证码图片。
     """
-    captcha_text = generate_random_code(length=4)
+    captcha_text = generate_verification_code(length=4)
     image = ImageCaptcha(width=160, height=80)
     data = image.generate(captcha_text)
 

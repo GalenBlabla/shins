@@ -78,8 +78,8 @@ class KeyIn_Pydantic(BaseModel):
         default=True, description="Indicates if the key is active")
 
     class Config:
-        orm_mode = True
-        schema_extra = {
+        from_attributes = True
+        json_schema_extra = {
             "example": {
                 "key": "your_unique_key_string",
                 "is_active": True
