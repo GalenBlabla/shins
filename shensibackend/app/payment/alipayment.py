@@ -83,6 +83,7 @@ async def verify_payment_signature(data_dict):
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+@router.post("/payment/notify")
 async def payment_notify(request: Request):
     data = await request.form()
     data_dict = dict(data)
