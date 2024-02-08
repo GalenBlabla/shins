@@ -133,14 +133,17 @@ async def payment_notify(request: Request):
             为对应的key 加上余额
             '''
             # 在KeyModel中找到用户的API Key
-            keys = await KeyModel.filter(user_id=order.user_id).all().values()
-            for key in keys:
-                logger.info(f"User ID: {key['user_id']}, Key: {key['key']}")
-                token = await Tokens.get_or_none(key=key)
-                logger.info(f"token already completed: {token}")
-                token = await Tokens.get(id=order.user_id)
-                token.remain_quota += (order.total_amount * int(os.getenv("QUOTA")))  # 假设 UserModel 有一个余额字段
-                await token.save()
+            keys = await KeyModel.filter(user_id=order.user_id).all().values('key')
+            for key_dict in keys:
+                api_key = key_dict['key']  # 从字典中获取API key字符串
+                logger.info(f"User ID: {order.user_id}, Key: {api_key}")
+
+                # 使用API key字符串查询Tokens表
+                token = await Tokens.get_or_none(key=api_key)
+                if token:
+                    logger.info(f"Updating token balance for Key: {api_key}")
+                    token.remain_quota += (order.total_amount * int(os.getenv("QUOTA")))
+                    await token.save()
 
     logger.info("Alipay notification processed successfully.")
     # 返回成功响应给支付宝
