@@ -142,7 +142,7 @@ async def register_user(user: UserCreate, verification_code: str):
                 status=1,  # 根据is_active字段设置status
                 email=user.email,
                 wechat_id=user.phone_number,  # 复制手机号
-                quota=os.getenv('QUOTA')*7,  # 设置quota为5000000
+                quota=int(os.getenv('QUOTA'))*7,  # 设置quota为5000000
                 used_quota=0,  # 设置used_quota为0
                 request_count=0,  # 设置request_count为0
             )
@@ -160,7 +160,7 @@ async def register_user(user: UserCreate, verification_code: str):
                 user_id=oneapi_user.id,  # 假设oneapidb中的用户ID与shensidb中的相同
                 key=api_key,
                 name="默认apikey",
-                remain_quota=os.getenv('QUOTA'),
+                remain_quota=int(os.getenv('QUOTA'))*7,
                 created_time=int(time.time()),  # 当前时间戳
                 accessed_time=int(time.time()),  # 当前时间戳，或根据需要设置
                 # 其他字段根据需要设置或保留默认值
