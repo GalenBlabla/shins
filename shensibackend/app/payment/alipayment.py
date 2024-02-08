@@ -135,7 +135,7 @@ async def payment_notify(request: Request):
             # 在KeyModel中找到用户的API Key
             keys = await KeyModel.filter(user_id=order.user_id).all().values()
             for key in keys:
-                logger.info(f"User ID: {key.user_id}, Key: {key.key}")
+                logger.info(f"User ID: {key['user_id']}, Key: {key['key']}")
                 token = await Tokens.get_or_none(key=keys)
                 logger.info(f"Order—userid already completed: {order.user_id}")
                 user = await Tokens.get(id=order.user_id)
