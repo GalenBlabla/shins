@@ -134,12 +134,13 @@ async def payment_notify(request: Request):
             '''
             # 在KeyModel中找到用户的API Key
             keys = await KeyModel.filter(user_id=order.user_id).all()
-            logger.info(f"keys:{keys}")
-            token = await Tokens.get_or_none(key=keys)
-            logger.info(f"Order—userid already completed: {order.user_id}")
-            user = await Tokens.get(id=order.user_id)
-            user.remain_quota += (order.total_amount * int(os.getenv("QUOTA")))  # 假设 UserModel 有一个余额字段
-            await user.save()
+            for key in keys:
+                logger.info(f"keys:{key}")
+                token = await Tokens.get_or_none(key=keys)
+                logger.info(f"Order—userid already completed: {order.user_id}")
+                user = await Tokens.get(id=order.user_id)
+                user.remain_quota += (order.total_amount * int(os.getenv("QUOTA")))  # 假设 UserModel 有一个余额字段
+                await user.save()
 
     logger.info("Alipay notification processed successfully.")
     # 返回成功响应给支付宝
