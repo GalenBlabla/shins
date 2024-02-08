@@ -16,7 +16,7 @@ from app.models.redis_config import redis_client
 from app.models.shensimodels import KeyModel, User_Pydantic, UserModel
 from passlib.context import CryptContext
 from app.dependencies import create_access_token, get_current_user
-from app.api.api_v1.endpoints.utils.smsverify import send_verification_code, store_verification_code, validate_verification_code
+from app.api.api_v1.endpoints.utils.smsverify import clear_stored_verification_code, send_verification_code, store_verification_code, validate_verification_code
 from starlette import status
 import random
 import string
@@ -98,13 +98,19 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @router.post("/users/register", response_model=User_Pydantic)
-async def register_user(user: UserCreate):
+async def register_user(user: UserCreate, verification_code: str):
     """
-    使用给定的用户信息注册新用户，无需验证码验证。
+    使用给定的用户信息和验证码注册新用户。
 
     异常:
-    - HTTPException: 400 错误，如果用户已存在。
+    - HTTPException: 400 错误，如果用户已存在或验证码无效。
     """
+    # 验证验证码
+    is_code_valid = await validate_verification_code(user.phone_number, verification_code)
+    if not is_code_valid:
+        raise HTTPException(
+            status_code=400, detail="Invalid or expired verification code")
+
     async with transactions.in_transaction("shensidb") as shensidb_conn:
         async with transactions.in_transaction("oneapidb") as oneapidb_conn:
 
@@ -125,6 +131,8 @@ async def register_user(user: UserCreate):
 
             # 创建用户
             db_user = await create_user(user.email, user.phone_number, user.password, username)
+            # 清除存储的验证码
+            clear_stored_verification_code(user.phone_number)
 
             oneapi_user = await Users.create(
                 username=user.username,
@@ -134,11 +142,9 @@ async def register_user(user: UserCreate):
                 status=1,  # 根据is_active字段设置status
                 email=user.email,
                 wechat_id=user.phone_number,  # 复制手机号
-                quota=os.getenv('QUOTA'),  # 设置quota为5000000
+                quota=os.getenv('QUOTA')*7,  # 设置quota为5000000
                 used_quota=0,  # 设置used_quota为0
                 request_count=0,  # 设置request_count为0
-                # 其他字段根据需要设置或保留默认值
-                # using_db=oneapidb_conn
             )
 
             # 生成API key
@@ -147,8 +153,6 @@ async def register_user(user: UserCreate):
             await KeyModel.create(
                 user_id=db_user.id,
                 key=api_key,
-                # 其他字段根据需要设置或保留默认值
-                # using_db=shensidb_conn
             )
 
             # 在oneapidb中为用户生成API key

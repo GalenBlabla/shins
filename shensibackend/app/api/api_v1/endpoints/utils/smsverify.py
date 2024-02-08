@@ -1,39 +1,49 @@
-import random
-import urllib.parse
-import urllib.request
-import random
 import os
 from dotenv import load_dotenv
 from typing import Optional
 
-from tortoise.exceptions import DoesNotExist
+from alibabacloud_dysmsapi20170525.client import Client as Dysmsapi20170525Client
+from alibabacloud_tea_openapi import models as open_api_models
+from alibabacloud_dysmsapi20170525 import models as dysmsapi_20170525_models
+from alibabacloud_tea_util import models as util_models
 
 from app.models.redis_config import redis_client
 from app.api.api_v1.endpoints.utils.generate_random_code import generate_random_code
 
 load_dotenv()
 
+def create_client() -> Dysmsapi20170525Client:
+    access_key_id = os.getenv('ALIBABA_CLOUD_ACCESS_KEY_ID')
+    access_key_secret = os.getenv('ALIBABA_CLOUD_ACCESS_KEY_SECRET')
+    
+    config = open_api_models.Config(
+        access_key_id=access_key_id,
+        access_key_secret=access_key_secret
+    )
+    config.endpoint = 'dysmsapi.aliyuncs.com'
+    return Dysmsapi20170525Client(config)
 
-async def send_verification_code(mobile):
+
+async def send_verification_code(mobile:str):
     
     # Generate a random 6-digit code
     code = generate_random_code(length=4)
-    # Save to database
-    store_verification_code(mobile, code)
+    # Save to Redis
+    store_verification_code(mobile, code, expiration_in_seconds=300)  # 5 minutes expiration
 
-    url = os.getenv("SMS_API_URL")
-    values = {
-        'account': os.getenv("SMS_ACCOUNT"),
-        'password': os.getenv("SMS_PASSWORD"),
-        'mobile': mobile,
-        'content': f'您的验证码是：{code}。请不要把验证码泄露给其他人。',
-        'format': 'json',
-    }
-
-    data = urllib.parse.urlencode(values).encode('UTF8')
-    req = urllib.request.Request(url, data)
-    response = urllib.request.urlopen(req)
-    res = response.read()
+    client = create_client()
+    send_sms_request = dysmsapi_20170525_models.SendSmsRequest(
+        phone_numbers=mobile,
+        sign_name=os.getenv("SMS_SIGN_NAME"),  # Use your sign name here
+        template_code=os.getenv("SMS_TEMPLATE_CODE"),  # Use your template code here
+        template_param=f'{{"code":"{code}"}}'
+    )
+    runtime = util_models.RuntimeOptions()
+    try:
+        # Send SMS
+        await client.send_sms_with_options_async(send_sms_request, runtime)
+    except Exception as error:
+        print(error)  # Consider proper error handling
 
 def store_verification_code(phone_number: str, code: str, expiration_in_seconds: int = 60) -> None:
     """
