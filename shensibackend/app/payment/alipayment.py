@@ -43,11 +43,7 @@ def generate_order_number(user_id: int) -> str:
 
 
 @router.post('/pay')
-async def pay(
-        total_amount: float,
-        subject: str,
-        body: str,
-        current_user: UserModel = Depends(get_current_user)):
+async def pay(total_amount: float,subject: str,body: str,current_user: UserModel = Depends(get_current_user)):
 
     out_trade_no = generate_order_number(current_user.id)
     connection_name = "shensidb" 
@@ -69,9 +65,7 @@ async def pay(
     model.product_code = "FAST_INSTANT_TRADE_PAY"
 
     pay_request = AlipayTradePagePayRequest(biz_model=model)
-    # 或使用 settings.ALIPAY_RETURN_URL
     pay_request.return_url = os.getenv("ALIPAY_RETURN_URL")
-    # 或使用 settings.ALIPAY_NOTIFY_URL
     pay_request.notify_url = os.getenv("ALIPAY_NOTIFY_URL")
     # 如果http_method是GET，则是一个带完成请求参数的url，如果http_method是POST，则是一段HTML表单片段
     response = client.page_execute(pay_request, http_method="GET")
@@ -79,72 +73,45 @@ async def pay(
     return {"url": response}
 
 
-
+# 假设已在文件开头或配置模块中定义
+QUOTA_MULTIPLIER = int(os.getenv("QUOTA", "100"))
+async def verify_payment_signature(data_dict):
+    if not verify_alipay_signature(data_dict):
+        logger.error("Invalid payment signature")
+        raise HTTPException(status_code=400, detail="Invalid signature")
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-@router.post("/payment/notify")
 async def payment_notify(request: Request):
-    """
-    支付宝支付结果通知接口。
-    当支付宝支付成功后，支付宝会向该接口发送通知。
-
-    步骤:
-    1. 解析请求体中的数据。
-    2. 验证通知数据的签名确保数据的真实性。
-    3. 检查订单状态，避免重复处理。
-    4. 更新订单状态和用户余额。
-    5. 返回成功响应给支付宝。
-    """
-    # 解析支付宝发送的通知数据
     data = await request.form()
     data_dict = dict(data)
-    logger.info(f"Received Alipay notification: {data_dict}")
+    
+    # 验证签名
+    await verify_payment_signature(data_dict)
 
-    # 验证通知数据的签名确保数据的真实性
-    if not verify_alipay_signature(data_dict):
-        logger.error("Invalid signature in Alipay notification.")
-        raise HTTPException(status_code=400, detail="Invalid signature")
-
-    # 检查订单状态，避免重复处理
     out_trade_no = data_dict.get('out_trade_no')
     async with in_transaction('shensidb') as conn:
         order = await OrderModel.get_or_none(out_trade_no=out_trade_no).using_db(conn)
-        logger.info(f"Order: {order}")
         if not order:
-            # 如果订单不存在
             logger.warning(f"Order not found: {out_trade_no}")
             raise HTTPException(status_code=404, detail="Order not found")
-        elif order.status == "COMPLETED":
-            # 如果订单已处理，则返回成功响应给支付宝
+        if order.status == "COMPLETED":
             logger.info(f"Order already completed: {out_trade_no}")
             return "success"
 
-        # 更新订单状态和用户余额
         if data_dict.get('trade_status') == "TRADE_SUCCESS":
-            logger.info(f"Updating order and user balance for: {out_trade_no}")
             order.status = "COMPLETED"
             await order.save(using_db=conn)
-            '''
-            先存储订单
-            根据订单信息找到该用户
-            找到该用户的token key
-            为对应的key 加上余额
-            '''
-            # 在KeyModel中找到用户的API Key
-            keys = await KeyModel.filter(user_id=order.user_id).all().values('key')
-            for key_dict in keys:
-                api_key = key_dict['key']  # 从字典中获取API key字符串
-                logger.info(f"User ID: {order.user_id}, Key: {api_key}")
+            logger.info(f"Order status updated to COMPLETED: {out_trade_no}")
 
-                # 使用API key字符串查询Tokens表
+            keys = await KeyModel.filter(user_id=order.user_id).values_list('key', flat=True)
+            for api_key in keys:
+                logger.info(f"Processing token for Key: {api_key}")
                 token = await Tokens.get_or_none(key=api_key)
                 if token:
-                    logger.info(f"Updating token balance for Key: {api_key}")
-                    token.remain_quota += (order.total_amount * int(os.getenv("QUOTA")))
+                    token.remain_quota += order.total_amount * QUOTA_MULTIPLIER
                     await token.save()
+                    logger.info(f"Token balance updated for Key: {api_key}")
 
-    logger.info("Alipay notification processed successfully.")
-    # 返回成功响应给支付宝
     return "success"
