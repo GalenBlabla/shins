@@ -15,7 +15,7 @@ from tortoise.transactions import in_transaction
 
 
 from app.dependencies import get_current_user
-from app.models.shensimodels import OrderModel, UserModel
+from app.models.shensimodels import KeyModel, OrderModel, UserModel
 from fastapi import APIRouter, HTTPException, Request, Depends
 from alipay.aop.api.response.AlipayTradePagePayResponse import AlipayTradePagePayResponse
 from app.models.shensimodels import OrderModel, UserModel
@@ -126,7 +126,17 @@ async def payment_notify(request: Request):
             logger.info(f"Updating order and user balance for: {out_trade_no}")
             order.status = "COMPLETED"
             await order.save(using_db=conn)
-
+            '''
+            先存储订单
+            根据订单信息找到该用户
+            找到该用户的token key
+            为对应的key 加上余额
+            '''
+            # 在KeyModel中找到用户的API Key
+            keys = await KeyModel.filter(user_id=order.user_id).all()
+            logger.info(f"keys:{keys}")
+            token = await Tokens.get_or_none(key=keys)
+            logger.info(f"Order—userid already completed: {order.user_id}")
             user = await Tokens.get(id=order.user_id)
             user.remain_quota += (order.total_amount * int(os.getenv("QUOTA")))  # 假设 UserModel 有一个余额字段
             await user.save()
