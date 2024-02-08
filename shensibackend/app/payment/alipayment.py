@@ -100,7 +100,6 @@ async def payment_notify(request: Request):
         if order.status == "COMPLETED":
             logger.info(f"Order already completed: {out_trade_no}")
             return "success"
-
         if data_dict.get('trade_status') == "TRADE_SUCCESS":
             order.status = "COMPLETED"
             await order.save(using_db=conn)
