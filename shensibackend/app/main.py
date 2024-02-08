@@ -9,12 +9,12 @@ from app.api.api_v1.endpoints import (
     item,
     token,
     keyserver,
-    VerifyCode,
 )   # 导入您的路由
-from app.api.api_v1.payment import alipayment
+from app.api.api_v1.endpoints import alipayment
 # from app.api.api_v1.admin import admin
 from starlette.middleware.sessions import SessionMiddleware
 from app.api.api_v1.admin.dashborad import dashboard
+from app.api.api_v1.endpoints import captcha
 load_dotenv()
 app = FastAPI()
 # 配置SessionMiddleware，设置密钥和会话cookie的名称
@@ -32,7 +32,7 @@ app.include_router(user.router)
 app.include_router(item.router)
 app.include_router(token.router)
 app.include_router(keyserver.router)
-app.include_router(VerifyCode.router)
+app.include_router(captcha.router)
 # app.include_router(admin.router)
 app.include_router(dashboard.router)
 app.include_router(alipayment.router)

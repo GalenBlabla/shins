@@ -18,22 +18,17 @@ class UserLogin(BaseModel):
     password: Optional[str] = None
     verification_code: Optional[str] = None
 
-
 class KeyCreate(BaseModel):
     key: str
-
 
 class KeyUpdate(BaseModel):
     key: str
 
-
 class TokenData(BaseModel):
     username: str | None = None
 
-
 class BindKeyRequest(BaseModel):
     key: str
-
 
 class UserTokenData(BaseModel):
     user_id: int

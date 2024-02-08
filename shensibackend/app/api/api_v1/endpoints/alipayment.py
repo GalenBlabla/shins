@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
-from app.dependencies import get_current_user
+from app.api.api_v1.dependencies import get_current_user
 from fastapi import APIRouter, Request, Depends
 from app.models.shensimodels import UserModel
-from app.dependencies import get_current_user
-from app.services.payment_service import initiate_payment, process_payment_notification
+from app.api.api_v1.dependencies import get_current_user
+from app.services.user_services.payment_service import initiate_payment, process_payment_notification
 
 router = APIRouter(tags=["AliPayment"])
 

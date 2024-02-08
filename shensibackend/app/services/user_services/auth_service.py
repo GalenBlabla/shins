@@ -1,10 +1,7 @@
 from fastapi import HTTPException, status
 from datetime import timedelta
 from app.models.shensimodels import UserModel
-from app.crud import authenticate_user
-from app.dependencies import create_access_token
-
-from app.dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.api.api_v1.dependencies import ACCESS_TOKEN_EXPIRE_MINUTES,create_access_token,authenticate_user
 from app.services.utils.validate_verification_code import validate_verification_code
 
 async def authenticate_and_generate_token(login: str, password: str = None, verification_code: str = None) -> dict:

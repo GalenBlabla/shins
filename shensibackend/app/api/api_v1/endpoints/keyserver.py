@@ -1,8 +1,8 @@
 from typing import List
 from fastapi import APIRouter, Depends,HTTPException
 from app.api.api_v1.endpoints.utils.unix2date import timestamp_to_datetime
-from app.dependencies import get_current_user
-from app.schemas import BindKeyRequest, UserTokenData
+from app.api.api_v1.dependencies import get_current_user
+from app.schemas.schemas import BindKeyRequest, UserTokenData
 from app.models.shensimodels import KeyModel, UserModel
 from app.models.oneapimodels import Tokens
 router = APIRouter()

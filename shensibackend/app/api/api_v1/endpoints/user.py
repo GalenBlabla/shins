@@ -1,19 +1,18 @@
 # API endpoints for the 'user' resource.
 from fastapi import APIRouter, HTTPException, Depends, Request
-from starlette import status
 from passlib.context import CryptContext
 
-from app.schemas import PasswordUpdateModel, UserCreate, UserLogin, UserPublicModel
-from app.models.shensimodels import KeyModel, User_Pydantic, UserModel
-from app.dependencies import get_current_user
-from app.services.user_service import get_user_details, update_user_password, update_user_username
-from app.services.verification_service import (
+from app.schemas.schemas import PasswordUpdateModel, UserCreate, UserLogin, UserPublicModel
+from app.models.shensimodels import User_Pydantic, UserModel
+from app.api.api_v1.dependencies import get_current_user
+from app.services.user_services.user_service import get_user_details, update_user_password, update_user_username
+from app.services.user_services.verification_service import (
     send_and_store_verification_code, 
     validate_captcha,
     clear_stored_verification_code
       )
-from app.services.user_service import register_new_user
-from app.services.auth_service import authenticate_and_generate_token
+from app.services.user_services.user_service import register_new_user
+from app.services.user_services.auth_service import authenticate_and_generate_token
 from app.services.utils.validate_verification_code import validate_verification_code
 
 router = APIRouter(tags=["Users"])

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from captcha.image import ImageCaptcha
 
-from app.services.verification_service import store_captcha_code,generate_verification_code
+from app.services.user_services.verification_service import store_captcha_code,generate_verification_code
 
 
 router = APIRouter(tags=["Captcha"])

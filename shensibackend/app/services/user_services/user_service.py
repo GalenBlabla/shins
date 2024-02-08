@@ -9,8 +9,8 @@ from fastapi import HTTPException, status
 from passlib.context import CryptContext
 
 from app.models.shensimodels import UserModel, KeyModel
-from app.schemas import UserCreate, UserPublicModel
-from app.crud import create_user as crud_create_user
+from app.schemas.schemas import UserCreate, UserPublicModel
+from app.api.api_v1.dependencies import create_user as crud_create_user
 from app.models.shensimodels import UserModel, KeyModel
 from app.models.oneapimodels import Users, Tokens
 from app.services.utils.generate_key import generate_key
