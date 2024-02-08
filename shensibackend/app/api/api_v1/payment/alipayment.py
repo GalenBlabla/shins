@@ -7,7 +7,7 @@ from app.services.payment_service import initiate_payment, process_payment_notif
 
 router = APIRouter(tags=["AliPayment"])
 
-@router.post('/pay')
+@router.post('/payment/alipay')
 async def pay(total_amount: float, subject: str, body: str, current_user: UserModel = Depends(get_current_user)):
     response = await initiate_payment(current_user.id, total_amount, subject, body)
     return {"url": response}
