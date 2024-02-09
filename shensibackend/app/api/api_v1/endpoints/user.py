@@ -52,7 +52,7 @@ async def login_for_access_token(form_data: UserLogin):
     token = await authenticate_and_generate_token(form_data.login, password=form_data.password, verification_code=form_data.verification_code)
     return token
 
-@router.put("users/change_username")
+@router.put("/users/change_username")
 async def update_username(new_username: str, current_user: UserModel = Depends(get_current_user)):
     message = await update_user_username(current_user, new_username)
     return {"message": message}
