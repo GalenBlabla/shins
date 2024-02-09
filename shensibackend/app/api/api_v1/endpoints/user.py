@@ -23,6 +23,7 @@ async def send_verify_code(request: Request, mobile: str, captcha_input: str):
         raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
     try:
         await send_and_store_verification_code(mobile)
+        
         return {"message": "Verification code sent successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

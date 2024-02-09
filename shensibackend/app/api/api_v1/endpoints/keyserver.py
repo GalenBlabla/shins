@@ -78,7 +78,6 @@ async def get_all_user_tokens_datas(user: UserModel = Depends(get_current_user))
     '''
     # 从 KeyModel 获取当前用户的所有 keys
     user_keys = await KeyModel.filter(user_id=user.id).all()
-    print(user_keys)
     # 聚合所有 tokens 的信息
     tokens_data = []
     for key_obj in user_keys:
