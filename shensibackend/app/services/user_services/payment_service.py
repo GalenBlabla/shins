@@ -16,13 +16,24 @@ from app.services.utils.alipay.verify_alipay_signature import verify_alipay_sign
 
 
 alipay_client_config = AlipayClientConfig()
-alipay_client_config.server_url = 'https://openapi-sandbox.dl.alipaydev.com/gateway.do'
+alipay_client_config.server_url = os.getenv("SERVER_URL")
 alipay_client_config.app_id = os.getenv("APP_ID")
 alipay_client_config.app_private_key = os.getenv("APP_PRIVATE_KEY")
 alipay_client_config.alipay_public_key = os.getenv("ALIPAY_PUBLIC_KEY")
 
+import logging
+import os
+
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 async def initiate_payment(user_id: int, total_amount: float, subject: str, body: str) -> str:
+    logger.info(f"Initiating payment for user_id: {user_id}, total_amount: {total_amount}")
+
     out_trade_no = generate_order_number(user_id)
+    logger.info(f"Generated order number: {out_trade_no}")
+
     async with in_transaction("shensidb") as conn:
         await OrderModel.create(
             user_id=user_id,
@@ -32,6 +43,7 @@ async def initiate_payment(user_id: int, total_amount: float, subject: str, body
             body=body,
             status="PENDING"
         )
+        logger.info("Order saved to database with status PENDING.")
 
     client = DefaultAlipayClient(alipay_client_config=alipay_client_config)
     model = AlipayTradePagePayModel()
@@ -44,25 +56,36 @@ async def initiate_payment(user_id: int, total_amount: float, subject: str, body
     pay_request = AlipayTradePagePayRequest(biz_model=model)
     pay_request.return_url = os.getenv("ALIPAY_RETURN_URL")
     pay_request.notify_url = os.getenv("ALIPAY_NOTIFY_URL")
-    response = client.page_execute(pay_request, http_method="GET")
     
+    logger.info("Sending payment request to Alipay...")
+    response = client.page_execute(pay_request, http_method="GET")
+    logger.info(f"Received response from Alipay: {response}")
+
     return response
 
 
 
-logger = logging.getLogger(__name__)
+
 # 假设已在文件开头或配置模块中定义
 QUOTA_MULTIPLIER = int(os.getenv("QUOTA", "70000"))
 
 async def process_payment_notification(data_dict: dict):
+    logger.info("Processing payment notification...")
+
     if not verify_alipay_signature(data_dict):
         logger.error("Invalid payment signature")
         raise ValueError("Invalid signature")
 
     out_trade_no = data_dict.get('out_trade_no')
+    logger.info(f"Processing order: {out_trade_no}")
+
     async with in_transaction('shensidb') as conn:
         order = await OrderModel.get_or_none(out_trade_no=out_trade_no).using_db(conn)
-        if not order or order.status == "COMPLETED":
+        if not order:
+            logger.error(f"Order not found: {out_trade_no}")
+            return "success"
+        elif order.status == "COMPLETED":
+            logger.info(f"Order already completed: {out_trade_no}")
             return "success"
 
         if data_dict.get('trade_status') == "TRADE_SUCCESS":
@@ -76,5 +99,7 @@ async def process_payment_notification(data_dict: dict):
                 if token:
                     token.remain_quota += order.total_amount * QUOTA_MULTIPLIER
                     await token.save()
+                    logger.info(f"Quota updated for token: {api_key}")
 
     return "success"
+
