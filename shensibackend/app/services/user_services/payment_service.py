@@ -14,12 +14,52 @@ from app.models.oneapimodels import Tokens
 from app.services.utils.alipay.generate_order_number import generate_order_number
 from app.services.utils.alipay.verify_alipay_signature import verify_alipay_signature
 
+def load_private_key_from_file(private_key_path):
+    """
+    从文件中加载私钥。
+    
+    :param private_key_path: 私钥文件的路径
+    :return: 私钥字符串
+    """
+    try:
+        with open(private_key_path, 'r') as file:
+            private_key = file.read()
+        return private_key
+    except Exception as e:
+        print(f"Error loading private key from {private_key_path}: {e}")
+        return None
+
+
+def load_public_key_from_file(public_key_path):
+    """
+    从文件中加载公钥。
+    
+    :param public_key_path: 公钥文件的路径
+    :return: 公钥字符串
+    """
+    try:
+        with open(public_key_path, 'r') as file:
+            public_key = file.read()
+        return public_key
+    except Exception as e:
+        print(f"Error loading public key from {public_key_path}: {e}")
+        return None
 
 alipay_client_config = AlipayClientConfig()
 alipay_client_config.server_url = os.getenv("SERVER_URL")
 alipay_client_config.app_id = os.getenv("APP_ID")
-alipay_client_config.app_private_key = os.getenv("APP_PRIVATE_KEY")
-alipay_client_config.alipay_public_key = os.getenv("ALIPAY_PUBLIC_KEY")
+
+# 从文件中读取私钥和公钥
+private_key_path = 'private_key.pem'  # 更新为你的私钥文件路径
+public_key_path = 'alipayPublicKey.txt'    # 更新为你的公钥文件路径
+
+alipay_client_config.app_private_key = load_private_key_from_file(private_key_path)
+alipay_client_config.alipay_public_key = load_public_key_from_file(public_key_path)
+
+# 确保密钥已正确加载
+if alipay_client_config.app_private_key is None or alipay_client_config.alipay_public_key is None:
+    print("Failed to load keys from files.")
+
 
 import logging
 import os
