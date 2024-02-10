@@ -23,7 +23,7 @@ async def send_verify_code(request: Request, mobile: str, captcha_input: str):
         raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
     try:
         await send_and_store_verification_code(mobile)
-        
+
         return {"message": "Verification code sent successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -66,4 +66,5 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def update_password(password_update: PasswordUpdateModel, current_user: UserModel = Depends(get_current_user)):
     message = await update_user_password(current_user, password_update.old_password, password_update.new_password)
     return {"message": message}
+
 

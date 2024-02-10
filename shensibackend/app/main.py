@@ -16,7 +16,12 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.api.api_v1.admin.dashborad import dashboard
 from app.api.api_v1.endpoints import captcha
 load_dotenv()
-app = FastAPI()
+
+# 根据环境变量来设置文档的 URL，如果环境变量设置为生产环境，则禁用文档
+DOCS_URL = None if os.getenv("ENVIRONMENT") == "production" else "/docs"
+REDOC_URL = None if os.getenv("ENVIRONMENT") == "production" else "/redoc"
+
+app = FastAPI(docs_url=DOCS_URL, redoc_url=REDOC_URL)
 # 配置SessionMiddleware，设置密钥和会话cookie的名称
 app.add_middleware(SessionMiddleware,
                    secret_key="your_secret_key", session_cookie="session")
