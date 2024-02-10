@@ -52,8 +52,8 @@ alipay_client_config.server_url = os.getenv("SERVER_URL")
 alipay_client_config.app_id = os.getenv("APP_ID")
 
 # 从文件中读取私钥和公钥
-private_key_path = 'private_key.txt'  # 更新为你的私钥文件路径
-public_key_path = 'alipayPublicKey.txt'    # 更新为你的公钥文件路径
+private_key_path = os.getenv('PRIVATE_KEY_PATH')  # 更新为你的私钥文件路径
+public_key_path = os.getenv('PUBLIC_KEY_PATH')    # 更新为你的公钥文件路径
 
 alipay_client_config.app_private_key = load_private_key_from_file(private_key_path)
 alipay_client_config.alipay_public_key = load_public_key_from_file(public_key_path)
