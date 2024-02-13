@@ -1,5 +1,6 @@
 import os
 import logging
+from dotenv import load_dotenv
 
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
 from alipay.aop.api.domain.AlipayTradePagePayModel import AlipayTradePagePayModel
@@ -13,7 +14,7 @@ from app.models.shensimodels import KeyModel, OrderModel
 from app.models.oneapimodels import Tokens
 from app.services.utils.alipay.generate_order_number import generate_order_number
 from app.services.utils.alipay.verify_alipay_signature import verify_alipay_signature
-
+load_dotenv()
 def load_private_key_from_file(private_key_path):
     """
     从文件中加载私钥。
@@ -48,7 +49,7 @@ def load_public_key_from_file(public_key_path):
         return None
 
 alipay_client_config = AlipayClientConfig()
-alipay_client_config.server_url = os.getenv("SERVER_URL")
+alipay_client_config.server_url = os.getenv("WAP_SERVER_URL")
 alipay_client_config.app_id = os.getenv("APP_ID")
 
 # 从文件中读取私钥和公钥
@@ -93,7 +94,7 @@ async def initiate_payment(user_id: int, total_amount: float, subject: str, body
     model.total_amount = str(total_amount)
     model.subject = subject
     model.body = body
-    model.product_code = "FAST_INSTANT_TRADE_PAY"
+    model.product_code = "QUICK_WAP_WAY"#QUICK_WAP_WAY FAST_INSTANT_TRADE_PAY
 
     pay_request = AlipayTradePagePayRequest(biz_model=model)
     pay_request.return_url = os.getenv("ALIPAY_RETURN_URL")
