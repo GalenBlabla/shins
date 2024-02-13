@@ -4,6 +4,7 @@ from typing import Optional
 from app.services.utils.smsverify import send_verification_code as send_sms
 from app.models.redis_config import redis_client
 
+
 def generate_verification_code(length: int = 6) -> str:
     """
     生成指定长度的随机数字验证码。
@@ -11,7 +12,8 @@ def generate_verification_code(length: int = 6) -> str:
     :param length: 验证码的长度，默认为6位。
     :return: 生成的随机数字验证码。
     """
-    return ''.join(random.choices(string.digits, k=length))
+    return "".join(random.choices(string.digits, k=length))
+
 
 async def send_and_store_verification_code(mobile: str):
     """
@@ -28,6 +30,7 @@ async def send_and_store_verification_code(mobile: str):
         print(f"Error sending or storing verification code for {mobile}: {e}")
         # 根据情况，可能需要重新抛出异常或处理错误
         raise
+
 
 def validate_captcha(mobile: str, input_captcha: str) -> bool:
     """
@@ -48,7 +51,10 @@ def validate_captcha(mobile: str, input_captcha: str) -> bool:
         print(f"Error validating captcha for {mobile}: {e}")
         return False
 
-def store_verification_code(phone_number: str, code: str, expiration_in_seconds: int = 60) -> None:
+
+def store_verification_code(
+    phone_number: str, code: str, expiration_in_seconds: int = 60
+) -> None:
     """
     将验证码与手机号关联并存储在 Redis 中。
 
@@ -61,7 +67,8 @@ def store_verification_code(phone_number: str, code: str, expiration_in_seconds:
     except Exception as e:
         print(f"Error storing verification code for {phone_number}: {e}")
         raise
-    
+
+
 def get_stored_verification_code(phone_number: str) -> Optional[str]:
     """
     从 Redis 中检索与手机号关联的验证码。
@@ -75,6 +82,7 @@ def get_stored_verification_code(phone_number: str) -> Optional[str]:
         print(f"Error retrieving stored verification code for {phone_number}: {e}")
         return None
 
+
 def clear_stored_verification_code(phone_number: str) -> None:
     """
     删除存储在 Redis 中的验证码。
@@ -86,7 +94,10 @@ def clear_stored_verification_code(phone_number: str) -> None:
     except Exception as e:
         print(f"Error clearing stored verification code for {phone_number}: {e}")
 
-def store_captcha_code(phone_number: str, captcha_code: str, expiration_in_seconds: int = 60):
+
+def store_captcha_code(
+    phone_number: str, captcha_code: str, expiration_in_seconds: int = 60
+):
     """
     将图形验证码与手机号关联并存储在 Redis 中。
 

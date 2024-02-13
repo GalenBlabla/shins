@@ -1,4 +1,3 @@
-
 # import os
 # from dotenv import load_dotenv
 # from tortoise import Tortoise
@@ -97,9 +96,9 @@
 
 #     return await Key_Pydantic.from_tortoise_orm(key_obj)
 
-'''
+"""
 遍历shensi数据库 找到已经注册的用户，将这些用户的登录信息转移到oneapi中 并且复制账号密码手机号  displayname和用户名是一样的 role=1 status=1 email 和shensidb中的email一样的
-'''
+"""
 
 
 # @router.post("/migrate_users_from_shensidb_to_oneapidb")
@@ -153,5 +152,3 @@
 #             print(f"用户 {user.username} 已成功迁移，并在两个数据库中生成了API key。")
 #         except IntegrityError:
 #             print(f"迁移用户 {user.username} 时出错：用户名已存在或其他约束冲突。")
-
-

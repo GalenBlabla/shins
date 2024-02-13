@@ -1,5 +1,6 @@
 from app.models.redis_config import redis_client
 
+
 async def validate_verification_code(phone_number: str, input_code: str) -> bool:
     """
     验证给定手机号的验证码是否正确。
@@ -12,7 +13,9 @@ async def validate_verification_code(phone_number: str, input_code: str) -> bool
         # 从 Redis 中获取存储的验证码
         stored_code = redis_client.get(phone_number)
         # 验证验证码是否匹配且未过期
-        if stored_code and stored_code == input_code:  # 确保从 Redis 获取的 bytes 类型数据被转换为 str 类型
+        if (
+            stored_code and stored_code == input_code
+        ):  # 确保从 Redis 获取的 bytes 类型数据被转换为 str 类型
             # 验证成功后，清除 Redis 中的验证码，以防重复使用
             redis_client.delete(phone_number)
             return True

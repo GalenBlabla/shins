@@ -9,12 +9,14 @@ from app.api.api_v1.endpoints import (
     item,
     token,
     keyserver,
-)   # 导入您的路由
+)  # 导入您的路由
 from app.api.api_v1.endpoints import alipayment
+
 # from app.api.api_v1.admin import admin
 from starlette.middleware.sessions import SessionMiddleware
 from app.api.api_v1.admin.dashborad import dashboard
 from app.api.api_v1.endpoints import captcha
+
 load_dotenv()
 
 # 根据环境变量来设置文档的 URL，如果环境变量设置为生产环境，则禁用文档
@@ -23,14 +25,16 @@ REDOC_URL = None if os.getenv("ENVIRONMENT") == "production" else "/redoc"
 
 app = FastAPI(docs_url=DOCS_URL, redoc_url=REDOC_URL)
 # 配置SessionMiddleware，设置密钥和会话cookie的名称
-app.add_middleware(SessionMiddleware,
-                   secret_key="your_secret_key", session_cookie="session")
+app.add_middleware(
+    SessionMiddleware, secret_key="your_secret_key", session_cookie="session"
+)
 # 示例路由
 
 
 @app.get("/")
 async def read_root():
     return {"Hello": "World"}
+
 
 # 包含您的API路由
 app.include_router(user.router)
@@ -54,19 +58,22 @@ app.add_middleware(
 tortoise_config = {
     "connections": {
         "shensidb": f"mysql://{os.getenv('DB_SHENSI_USER')}:{os.getenv('DB_SHENSI_PASSWORD')}@{os.getenv('DB_SHENSI_HOST')}:{os.getenv('ShenSiDB_PORT')}/{os.getenv('DB_SHENSI_NAME')}",
-        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:{os.getenv('oneapiDB_PORT')}/{os.getenv('DB_ONEAPI_NAME')}"
+        "oneapidb": f"mysql://{os.getenv('DB_ONEAPI_USER')}:{os.getenv('DB_ONEAPI_PASSWORD')}@{os.getenv('DB_ONEAPI_HOST')}:{os.getenv('oneapiDB_PORT')}/{os.getenv('DB_ONEAPI_NAME')}",
     },
     "apps": {
-        "shensidb_app": {"models": ["app.models.shensimodels"], "default_connection": "shensidb"},
-        "oneapidb_app": {"models": ["app.models.oneapimodels"], "default_connection": "oneapidb"},
-    }
+        "shensidb_app": {
+            "models": ["app.models.shensimodels"],
+            "default_connection": "shensidb",
+        },
+        "oneapidb_app": {
+            "models": ["app.models.oneapimodels"],
+            "default_connection": "oneapidb",
+        },
+    },
 }
 
 register_tortoise(
-    app,
-    config=tortoise_config,
-    generate_schemas=True,
-    add_exception_handlers=True
+    app, config=tortoise_config, generate_schemas=True, add_exception_handlers=True
 )
 
 # if __name__ == "__main__":

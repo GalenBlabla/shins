@@ -1,9 +1,14 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from app.api.api_v1.dependencies import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token,authenticate_user
+from app.api.api_v1.dependencies import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    create_access_token,
+    authenticate_user,
+)
 
 router = APIRouter()
+
 
 @router.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -19,4 +24,3 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
-

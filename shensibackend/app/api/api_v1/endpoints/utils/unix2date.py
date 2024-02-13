@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 def timestamp_to_datetime(timestamp: int) -> datetime:
     """
     Convert a Unix timestamp to a Python datetime object.

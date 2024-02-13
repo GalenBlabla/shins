@@ -12,19 +12,21 @@ def init_random_seed():
 
 def get_uuid():
     """生成去除'-'的UUID字符串，并转换为大写"""
-    return str(uuid.uuid4()).replace('-', '').upper()
+    return str(uuid.uuid4()).replace("-", "").upper()
 
 
 def generate_key():
     """生成一个包含随机字符串和UUID的Token"""
     init_random_seed()  # 初始化随机种子
-    key_part = ''.join(random.choice(key_chars)
-                       for _ in range(16))  # 生成16字符的随机字符串
+    key_part = "".join(
+        random.choice(key_chars) for _ in range(16)
+    )  # 生成16字符的随机字符串
 
     uuid_part = get_uuid()  # 获取UUID
     # 将UUID中的偶数位置的大写字母转换为小写（模仿Go代码的逻辑）
-    uuid_processed = ''.join(c.lower() if i %
-                             2 == 0 else c for i, c in enumerate(uuid_part))
+    uuid_processed = "".join(
+        c.lower() if i % 2 == 0 else c for i, c in enumerate(uuid_part)
+    )
 
     return key_part + uuid_processed  # 拼接并返回
 

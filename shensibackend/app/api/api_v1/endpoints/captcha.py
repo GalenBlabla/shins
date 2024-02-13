@@ -2,16 +2,20 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from captcha.image import ImageCaptcha
 
-from app.services.user_services.verification_service import store_captcha_code,generate_verification_code
+from app.services.user_services.verification_service import (
+    store_captcha_code,
+    generate_verification_code,
+)
 
 
 router = APIRouter(tags=["Captcha"])
+
 
 @router.get("/captcha/{phone_number}")
 async def get_captcha(phone_number: str):
     """
     为指定的手机号生成4位数字的图形验证码，并将其存储在 Redis 中。
-    
+
     步骤:
     1. 生成一个随机的4位数字图形验证码。
     2. 使用captcha库生成验证码图片。
