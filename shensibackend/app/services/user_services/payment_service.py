@@ -49,7 +49,8 @@ def load_public_key_from_file(public_key_path):
         return None
 
 alipay_client_config = AlipayClientConfig()
-alipay_client_config.server_url = os.getenv("WAP_SERVER_URL")
+alipay_client_config.server_url = os.getenv("WAP_SERVER_URL")#TODO if its by phone
+alipay_client_config.server_url = os.getenv("SERVER_URL")#TODO if its by pc
 alipay_client_config.app_id = os.getenv("APP_ID")
 
 # 从文件中读取私钥和公钥
@@ -94,8 +95,8 @@ async def initiate_payment(user_id: int, total_amount: float, subject: str, body
     model.total_amount = str(total_amount)
     model.subject = subject
     model.body = body
-    model.product_code = "QUICK_WAP_WAY"#QUICK_WAP_WAY FAST_INSTANT_TRADE_PAY
-
+    model.product_code = "QUICK_WAP_WAY"#TODO if its by phone
+    model.product_code = "QUICK_WAP_WAY FAST_INSTANT_TRADE_PAY"#TODO if its by pc
     pay_request = AlipayTradePagePayRequest(biz_model=model)
     pay_request.return_url = os.getenv("ALIPAY_RETURN_URL")
     pay_request.notify_url = os.getenv("ALIPAY_NOTIFY_URL")
