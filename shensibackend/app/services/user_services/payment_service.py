@@ -35,7 +35,7 @@ def load_private_key_from_file(private_key_path):
         with open(private_key_path, "r") as file:
             private_key = file.read()
         return private_key
-    except Exception as e:
+    except Exception:
         return None
 
 
