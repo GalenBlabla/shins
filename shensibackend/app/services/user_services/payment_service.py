@@ -8,6 +8,9 @@ from alipay.aop.api.request.AlipayTradePagePayRequest import AlipayTradePagePayR
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from app.models.shensimodels import OrderModel
 from tortoise.transactions import in_transaction
+#shoujizhifu
+from alipay.aop.api.domain.AlipayTradeWapPayModel import AlipayTradeWapPayModel
+from alipay.aop.api.request.AlipayTradeWapPayRequest import AlipayTradeWapPayRequest
 
 
 from app.models.shensimodels import KeyModel, OrderModel
@@ -49,7 +52,7 @@ def load_public_key_from_file(public_key_path):
         return None
 
 alipay_client_config = AlipayClientConfig()
-alipay_client_config.server_url = os.getenv("WAP_SERVER_URL")#TODO if its by phone
+# alipay_client_config.server_url = os.getenv("WAP_SERVER_URL")#TODO if its by phone
 alipay_client_config.server_url = os.getenv("SERVER_URL")#TODO if its by pc
 alipay_client_config.app_id = os.getenv("APP_ID")
 
@@ -63,17 +66,12 @@ alipay_client_config.alipay_public_key = load_public_key_from_file(public_key_pa
 # 确保密钥已正确加载
 if alipay_client_config.app_private_key is None or alipay_client_config.alipay_public_key is None:
     print("Failed to load keys from files.")
-
-
-import logging
-import os
-
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def initiate_payment(user_id: int, total_amount: float, subject: str, body: str) -> str:
-    logger.info(f"Initiating payment for user_id: {user_id}, total_amount: {total_amount}")
+async def initiate_payment(user_id: int, total_amount: float, subject: str, body: str, device_type: str) -> str:
+    logger.info(f"Initiating payment for user_id: {user_id}, total_amount: {total_amount}, device_type: {device_type}")
 
     out_trade_no = generate_order_number(user_id)
     logger.info(f"Generated order number: {out_trade_no}")
@@ -90,17 +88,24 @@ async def initiate_payment(user_id: int, total_amount: float, subject: str, body
         logger.info("Order saved to database with status PENDING.")
 
     client = DefaultAlipayClient(alipay_client_config=alipay_client_config)
-    model = AlipayTradePagePayModel()
+
+    if device_type.lower() == "phone":
+        model = AlipayTradeWapPayModel()
+        pay_request = AlipayTradeWapPayRequest()
+        model.product_code = "QUICK_WAP_WAY"
+    else:  # Default to PC if not specified or specified as PC
+        model = AlipayTradePagePayModel()
+        pay_request = AlipayTradePagePayRequest()
+        model.product_code = "FAST_INSTANT_TRADE_PAY"
+
     model.out_trade_no = out_trade_no
     model.total_amount = str(total_amount)
     model.subject = subject
     model.body = body
-    model.product_code = "QUICK_WAP_WAY"#TODO if its by phone
-    model.product_code = "QUICK_WAP_WAY FAST_INSTANT_TRADE_PAY"#TODO if its by pc
-    pay_request = AlipayTradePagePayRequest(biz_model=model)
+    pay_request.biz_model = model
     pay_request.return_url = os.getenv("ALIPAY_RETURN_URL")
     pay_request.notify_url = os.getenv("ALIPAY_NOTIFY_URL")
-    
+
     logger.info("Sending payment request to Alipay...")
     response = client.page_execute(pay_request, http_method="GET")
     logger.info(f"Received response from Alipay: {response}")
