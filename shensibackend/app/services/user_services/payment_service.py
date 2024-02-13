@@ -2,16 +2,13 @@ import os
 import logging
 from dotenv import load_dotenv
 
+from tortoise.transactions import in_transaction
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
 from alipay.aop.api.domain.AlipayTradePagePayModel import AlipayTradePagePayModel
 from alipay.aop.api.request.AlipayTradePagePayRequest import AlipayTradePagePayRequest
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
-from tortoise.transactions import in_transaction
-
-# shoujizhifu
 from alipay.aop.api.domain.AlipayTradeWapPayModel import AlipayTradeWapPayModel
 from alipay.aop.api.request.AlipayTradeWapPayRequest import AlipayTradeWapPayRequest
-
 
 from app.models.shensimodels import KeyModel, OrderModel
 from app.models.oneapimodels import Tokens
@@ -19,18 +16,9 @@ from app.services.utils.alipay.generate_order_number import generate_order_numbe
 from app.services.utils.alipay.verify_alipay_signature import verify_alipay_signature
 
 load_dotenv()
-# 配置日志
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
 
 
 def load_private_key_from_file(private_key_path):
-    """
-    从文件中加载私钥。
-
-    :param private_key_path: 私钥文件的路径
-    :return: 私钥字符串
-    """
     try:
         with open(private_key_path, "r") as file:
             private_key = file.read()
@@ -40,12 +28,6 @@ def load_private_key_from_file(private_key_path):
 
 
 def load_public_key_from_file(public_key_path):
-    """
-    从文件中加载公钥。
-
-    :param public_key_path: 公钥文件的路径
-    :return: 公钥字符串
-    """
     try:
         with open(public_key_path, "r") as file:
             public_key = file.read()
@@ -126,10 +108,6 @@ async def save_order_to_db(user_id, out_trade_no, total_amount, subject, body):
         logger.info("Order saved to database with status PENDING.")
 
 
-# 假设已在文件开头或配置模块中定义
-QUOTA_MULTIPLIER = int(os.getenv("QUOTA", "70000"))
-
-
 async def process_payment_notification(data_dict: dict):
     logger.info("Processing payment notification...")
 
@@ -160,7 +138,9 @@ async def process_payment_notification(data_dict: dict):
             for api_key in keys:
                 token = await Tokens.get_or_none(key=api_key)
                 if token:
-                    token.remain_quota += order.total_amount * QUOTA_MULTIPLIER
+                    token.remain_quota += order.total_amount * int(
+                        os.getenv("QUOTA", "70000")
+                    )
                     await token.save()
                     logger.info(f"Quota updated for token: {api_key}")
 
