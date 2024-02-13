@@ -18,6 +18,10 @@ from app.models.oneapimodels import Tokens
 from app.services.utils.alipay.generate_order_number import generate_order_number
 from app.services.utils.alipay.verify_alipay_signature import verify_alipay_signature
 load_dotenv()
+# 配置日志
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
+
 def load_private_key_from_file(private_key_path):
     """
     从文件中加载私钥。
@@ -28,10 +32,8 @@ def load_private_key_from_file(private_key_path):
     try:
         with open(private_key_path, 'r') as file:
             private_key = file.read()
-        print("private_key:",private_key)
         return private_key
     except Exception as e:
-        print(f"Error loading private key from {private_key_path}: {e}")
         return None
 
 
@@ -45,37 +47,62 @@ def load_public_key_from_file(public_key_path):
     try:
         with open(public_key_path, 'r') as file:
             public_key = file.read()
-        print("public_key:",public_key)
         return public_key
     except Exception as e:
-        print(f"Error loading public key from {public_key_path}: {e}")
         return None
 
-alipay_client_config = AlipayClientConfig()
-# alipay_client_config.server_url = os.getenv("WAP_SERVER_URL")#TODO if its by phone
-alipay_client_config.server_url = os.getenv("SERVER_URL")#TODO if its by pc
-alipay_client_config.app_id = os.getenv("APP_ID")
+# 初始化支付宝客户端配置
+def init_alipay_client():
+    alipay_client_config = AlipayClientConfig()
+    alipay_client_config.server_url = os.getenv("SERVER_URL")
+    alipay_client_config.app_id = os.getenv("APP_ID")
+    alipay_client_config.app_private_key = load_private_key_from_file(os.getenv('PRIVATE_KEY_PATH'))
+    alipay_client_config.alipay_public_key = load_public_key_from_file(os.getenv('PUBLIC_KEY_PATH'))
+    return DefaultAlipayClient(alipay_client_config=alipay_client_config)
 
-# 从文件中读取私钥和公钥
-private_key_path = os.getenv('PRIVATE_KEY_PATH')  # 更新为你的私钥文件路径
-public_key_path = os.getenv('PUBLIC_KEY_PATH')    # 更新为你的公钥文件路径
+# 创建并发送支付请求
+async def create_and_send_payment_request(client, model, return_url, notify_url):
+    if isinstance(model, AlipayTradeWapPayModel):
+        pay_request = AlipayTradeWapPayRequest()
+    else:
+        pay_request = AlipayTradePagePayRequest()
+    
+    pay_request.biz_model = model
+    pay_request.return_url = return_url
+    pay_request.notify_url = notify_url
 
-alipay_client_config.app_private_key = load_private_key_from_file(private_key_path)
-alipay_client_config.alipay_public_key = load_public_key_from_file(public_key_path)
+    logger.info("Sending payment request to Alipay...")
+    response = client.page_execute(pay_request, http_method="GET")
+    logger.info(f"Received response from Alipay: {response}")
+    return response
 
-# 确保密钥已正确加载
-if alipay_client_config.app_private_key is None or alipay_client_config.alipay_public_key is None:
-    print("Failed to load keys from files.")
-# 配置日志
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+# 封装支付初始化逻辑
 async def initiate_payment(user_id: int, total_amount: float, subject: str, body: str, device_type: str) -> str:
-    logger.info(f"Initiating payment for user_id: {user_id}, total_amount: {total_amount}, device_type: {device_type}")
 
     out_trade_no = generate_order_number(user_id)
-    logger.info(f"Generated order number: {out_trade_no}")
+    await save_order_to_db(user_id, out_trade_no, total_amount, subject, body)
 
+    client = init_alipay_client()
+
+    if device_type.lower() == "phone":
+        model = AlipayTradeWapPayModel()
+        model.product_code = "QUICK_WAP_WAY"
+    else:
+        model = AlipayTradePagePayModel()
+        model.product_code = "FAST_INSTANT_TRADE_PAY"
+
+    model.out_trade_no = out_trade_no
+    model.total_amount = str(total_amount)
+    model.subject = subject
+    model.body = body
+
+    return_url = os.getenv("ALIPAY_RETURN_URL")
+    notify_url = os.getenv("ALIPAY_NOTIFY_URL")
+    
+    return await create_and_send_payment_request(client, model, return_url, notify_url)
+
+# 保存订单到数据库
+async def save_order_to_db(user_id, out_trade_no, total_amount, subject, body):
     async with in_transaction("shensidb") as conn:
         await OrderModel.create(
             user_id=user_id,
@@ -86,32 +113,6 @@ async def initiate_payment(user_id: int, total_amount: float, subject: str, body
             status="PENDING"
         )
         logger.info("Order saved to database with status PENDING.")
-
-    client = DefaultAlipayClient(alipay_client_config=alipay_client_config)
-
-    if device_type.lower() == "phone":
-        model = AlipayTradeWapPayModel()
-        pay_request = AlipayTradeWapPayRequest()
-        model.product_code = "QUICK_WAP_WAY"
-    else:  # Default to PC if not specified or specified as PC
-        model = AlipayTradePagePayModel()
-        pay_request = AlipayTradePagePayRequest()
-        model.product_code = "FAST_INSTANT_TRADE_PAY"
-
-    model.out_trade_no = out_trade_no
-    model.total_amount = str(total_amount)
-    model.subject = subject
-    model.body = body
-    pay_request.biz_model = model
-    pay_request.return_url = os.getenv("ALIPAY_RETURN_URL")
-    pay_request.notify_url = os.getenv("ALIPAY_NOTIFY_URL")
-
-    logger.info("Sending payment request to Alipay...")
-    response = client.page_execute(pay_request, http_method="GET")
-    logger.info(f"Received response from Alipay: {response}")
-
-    return response
-
 
 
 
