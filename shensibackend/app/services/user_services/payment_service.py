@@ -1,5 +1,4 @@
 import os
-import logging
 from dotenv import load_dotenv
 
 from tortoise.transactions import in_transaction
@@ -61,9 +60,7 @@ async def create_and_send_payment_request(client, model, return_url, notify_url)
     pay_request.return_url = return_url
     pay_request.notify_url = notify_url
 
-    logger.info("Sending payment request to Alipay...")
     response = client.page_execute(pay_request, http_method="GET")
-    logger.info(f"Received response from Alipay: {response}")
     return response
 
 
@@ -105,33 +102,30 @@ async def save_order_to_db(user_id, out_trade_no, total_amount, subject, body):
             body=body,
             status="PENDING",
         )
-        logger.info("Order saved to database with status PENDING.")
 
 
 async def process_payment_notification(data_dict: dict):
-    logger.info("Processing payment notification...")
+
 
     if not verify_alipay_signature(data_dict):
-        logger.error("Invalid payment signature")
+
         raise ValueError("Invalid signature")
 
     out_trade_no = data_dict.get("out_trade_no")
-    logger.info(f"Processing order: {out_trade_no}")
+
 
     async with in_transaction("shensidb") as conn:
         order = await OrderModel.get_or_none(out_trade_no=out_trade_no).using_db(conn)
         if not order:
-            logger.error(f"Order not found: {out_trade_no}")
+
             return "success"
         elif order.status == "COMPLETED":
-            logger.info(f"Order already completed: {out_trade_no}")
+
             return "success"
 
         if data_dict.get("trade_status") == "TRADE_SUCCESS":
             order.status = "COMPLETED"
             await order.save(using_db=conn)
-            logger.info(f"Order status updated to COMPLETED: {out_trade_no}")
-
             keys = await KeyModel.filter(user_id=order.user_id).values_list(
                 "key", flat=True
             )
@@ -142,6 +136,5 @@ async def process_payment_notification(data_dict: dict):
                         os.getenv("QUOTA", "70000")
                     )
                     await token.save()
-                    logger.info(f"Quota updated for token: {api_key}")
 
     return "success"
