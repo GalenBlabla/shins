@@ -16,7 +16,7 @@ class PaymentInfo(BaseModel):
 
 class UserCreate(BaseModel):
     username: str
-    email: EmailStr
+    email: Optional[EmailStr] = None
     phone_number: Optional[str] = None
     password: str
 

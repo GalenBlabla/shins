@@ -36,11 +36,13 @@ async def register_new_user(user_data: UserCreate) -> UserModel:
     async with in_transaction("shensidb"):
         existing_user = await UserModel.get_or_none(phone_number=user_data.phone_number)
         if existing_user:
-            raise ValueError("User with this phone number already exists")
+            raise ValueError("该手机号已注册")
 
-        existing_user = await UserModel.get_or_none(email=user_data.email)
-        if existing_user:
-            raise ValueError("User with this email already exists")
+        # 仅当提供了电子邮件时才检查电子邮件的存在性
+        if user_data.email:
+            existing_user = await UserModel.get_or_none(email=user_data.email)
+            if existing_user:
+                raise ValueError("该邮箱已注册")
 
         username = (
             user_data.username
