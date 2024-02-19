@@ -4,29 +4,14 @@ from app.models.shensimodels import UserModel
 from app.api.api_v1.dependencies import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     create_access_token,
-    authenticate_user,
 )
-from app.services.utils.validate_verification_code import validate_verification_code
-
-
 async def authenticate_and_generate_token(
-    login: str, password: str = None, verification_code: str = None
+    login: str
 ) -> dict:
     user = None
-    if password:
-        user = await authenticate_user(login, password)
-    elif verification_code:
-        is_code_valid = await validate_verification_code(login, verification_code)
-        if is_code_valid:
-            user = await UserModel.get_or_none(
+    user = await UserModel.get_or_none(
                 phone_number=login
-            ) or await UserModel.get_or_none(email=login)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid verification code",
             )
-
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect login details"

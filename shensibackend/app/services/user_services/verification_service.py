@@ -62,8 +62,11 @@ def store_verification_code(
     :param code: 发送给用户的验证码。
     :param expiration_in_seconds: 验证码在 Redis 中的过期时间，默认为 1 分钟（60 秒）。
     """
+    print("save:",phone_number,code)#save: 18009082890 106320
     try:
         redis_client.set(phone_number, code, ex=expiration_in_seconds)
+        a = get_stored_verification_code(phone_number)
+        print("get:",a)#get: 106320
     except Exception as e:
         print(f"Error storing verification code for {phone_number}: {e}")
         raise

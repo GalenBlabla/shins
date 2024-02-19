@@ -1,4 +1,5 @@
 from app.models.redis_config import redis_client
+from app.services.user_services.verification_service import get_stored_verification_code
 
 
 async def validate_verification_code(phone_number: str, input_code: str) -> bool:
@@ -11,7 +12,8 @@ async def validate_verification_code(phone_number: str, input_code: str) -> bool
     """
     try:
         # 从 Redis 中获取存储的验证码
-        stored_code = redis_client.get(phone_number)
+        stored_code = get_stored_verification_code(phone_number)
+        print("veryfiy",stored_code,phone_number,input_code)
         # 验证验证码是否匹配且未过期
         if (
             stored_code and stored_code == input_code
