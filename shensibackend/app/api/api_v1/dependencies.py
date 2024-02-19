@@ -55,15 +55,15 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-async def create_user(email: str, phone_number: str, password: str, username: str):
-    hashed_password = pwd_context.hash(password)
+async def create_user(email: str, phone_number: str, hashed_password: str, username: str):
     user = await UserModel.create(
         email=email,
         phone_number=phone_number,
-        hashed_password=hashed_password,
+        hashed_password=hashed_password,  # 直接使用传入的哈希密码
         username=username,
     )
     return user
+
 
 
 async def authenticate_user(login: str, password: str):

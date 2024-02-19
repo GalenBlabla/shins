@@ -44,11 +44,10 @@ async def register_new_user(user_data: UserCreate) -> UserModel:
         password = phone_number
         hashed_password = pwd_context.hash(password)
         db_user = await crud_create_user(
+            email=phone_number,  # 使用手机号作为 email
             phone_number=phone_number,
-            hashed_password=hashed_password,
-            username=username,
-            # 如果email字段是必须的，可以使用手机号作为email
-            email=phone_number  
+            hashed_password=hashed_password,  # 传递已哈希的密码
+            username=username
         )
 
         async with in_transaction("oneapidb") as oneapidb_conn:
