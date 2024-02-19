@@ -67,7 +67,7 @@ async def register_user(user: UserCreate, verification_code: str):
 async def login_for_access_token(form_data: UserLogin):
     token = await authenticate_and_generate_token(
         form_data.login,
-        password=form_data.password,
+        # password=form_data.password,
         verification_code=form_data.verification_code,
     )
     return token
