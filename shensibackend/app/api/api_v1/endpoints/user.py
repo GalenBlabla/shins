@@ -28,9 +28,9 @@ router = APIRouter(tags=["Users"])
 
 
 @router.post("/users/send_verify_code")
-async def send_verify_code(request: Request, mobile: str, captcha_input: str):
-    if not validate_captcha(mobile, captcha_input):
-        raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
+async def send_verify_code(request: Request, mobile: str): #, captcha_input: str
+    # if not validate_captcha(mobile, captcha_input):
+    #     raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
     try:
         await send_and_store_verification_code(mobile)
 
