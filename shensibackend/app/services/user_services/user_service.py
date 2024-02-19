@@ -37,15 +37,28 @@ async def register_new_user(user_data: UserCreate) -> UserModel:
         existing_user = await UserModel.get_or_none(phone_number=user_data.phone_number)
         if existing_user:
             raise ValueError("该手机号已注册")
-
+        phone_number = UserModel.phone_number
+        username=UserModel.phone_number
         # 仅当提供了电子邮件时才检查电子邮件的存在性
-        if user_data.email:
-            existing_user = await UserModel.get_or_none(email=user_data.email)
-            if existing_user:
-                raise ValueError("该邮箱已注册")
+        # if user_data.email:
+        #     existing_user = await UserModel.get_or_none(email=user_data.email)
+        #     if existing_user:
+        #         raise ValueError("该邮箱已注册")
 
+        # username = (
+        #     user_data.username
+        #     if user_data.username
+        #     else "".join(random.choices(string.ascii_letters + string.digits, k=8))
+        # )
+                # 这里可以选择生成一个随机密码或者直接使用手机号的哈希值
+        password = "".join(random.choices(string.ascii_letters + string.digits, k=8))
+        hashed_password = pwd_context.hash(password)
         db_user = await crud_create_user(
-            user_data.phone_number+"@example.com", user_data.phone_number, user_data.phone_number, user_data.phone_number
+            phone_number=phone_number,
+            hashed_password=hashed_password,
+            username=username,
+            # 如果email字段是必须的，可以使用手机号作为email
+            email=phone_number  
         )
 
         async with in_transaction("oneapidb") as oneapidb_conn:
