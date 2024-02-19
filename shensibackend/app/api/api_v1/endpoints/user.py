@@ -28,9 +28,7 @@ router = APIRouter(tags=["Users"])
 
 
 @router.post("/users/send_verify_code")
-async def send_verify_code(request: Request, mobile: str): #, captcha_input: str
-    # if not validate_captcha(mobile, captcha_input):
-    #     raise HTTPException(status_code=400, detail="Invalid CAPTCHA")
+async def send_verify_code(request: Request, mobile: str):
     try:
         await send_and_store_verification_code(mobile)
 
@@ -44,40 +42,6 @@ async def read_users_me(current_user: UserModel = Depends(get_current_user)):
     user_details = await get_user_details(current_user.id)
     return user_details
 
-
-# @router.post("/users/register", response_model=User_Pydantic)
-# async def register_user(user: UserCreate, verification_code: str):
-#     is_code_valid = await validate_verification_code(
-#         user.phone_number, verification_code
-#     )
-#     if not is_code_valid:
-#         raise HTTPException(
-#             status_code=400, detail="Invalid or expired verification code"
-#         )
-
-#     try:
-#         db_user = await register_new_user(user)
-#         clear_stored_verification_code(user.phone_number)
-#         return await User_Pydantic.from_tortoise_orm(db_user)
-#     except ValueError as e:
-#         raise HTTPException(status_code=400, detail=str(e))
-
-
-# @router.post("/users/login")
-# async def login_for_access_token(form_data: UserLogin,verification_code: str):
-#     is_code_valid = await validate_verification_code(
-#         form_data.phone_number, verification_code
-#     )
-#     if not is_code_valid:
-#         raise HTTPException(
-#             status_code=400, detail="Invalid or expired verification code"
-#         )
-#     token = await authenticate_and_generate_token(
-#         login=form_data.phone_number,
-#         password=None,
-#         verification_code=verification_code,
-#     )
-#     return token
 async def authenticate_or_register(user: UserCreate):
     # 检查用户是否存在
     existing_user = await UserModel.get_or_none(phone_number=user.phone_number)
@@ -94,6 +58,7 @@ async def authenticate_or_register(user: UserCreate):
             login=user.phone_number,
         )
         return token, db_user
+    
 @router.post("/users/auth")
 async def register_or_login(user: UserCreate, verification_code: str):
     print(user.phone_number, verification_code)
@@ -104,10 +69,8 @@ async def register_or_login(user: UserCreate, verification_code: str):
         raise HTTPException(
             status_code=400, detail="Invalid or expired verification code"
         )
-
     # 尝试检查用户是否已经存在并进行登录，如果不存在则注册
     token, db_user = await authenticate_or_register(user)
-
     # 清除存储的验证码
     clear_stored_verification_code(user.phone_number)
 
