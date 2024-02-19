@@ -19,9 +19,9 @@ class UserCreate(BaseModel):
 
 
 class UserLogin(BaseModel):
-    login: str  # 可以是用户名、手机号或邮箱
+    phone_number: str  # 可以是用户名、手机号或邮箱
     # password: Optional[str] = None
-    verification_code: Optional[str] = None
+    # verification_code: Optional[str] = None
 
 
 class KeyCreate(BaseModel):

@@ -64,11 +64,18 @@ async def register_user(user: UserCreate, verification_code: str):
 
 
 @router.post("/users/login")
-async def login_for_access_token(form_data: UserLogin):
+async def login_for_access_token(form_data: UserLogin,verification_code: str):
+    is_code_valid = await validate_verification_code(
+        form_data.phone_number, verification_code
+    )
+    if not is_code_valid:
+        raise HTTPException(
+            status_code=400, detail="Invalid or expired verification code"
+        )
     token = await authenticate_and_generate_token(
-        form_data.login,
-        # password=form_data.password,
-        verification_code=form_data.verification_code,
+        login=form_data.phone_number,
+        password=None,
+        verification_code=verification_code,
     )
     return token
 
