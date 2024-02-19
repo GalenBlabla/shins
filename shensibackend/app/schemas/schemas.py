@@ -15,10 +15,10 @@ class PaymentInfo(BaseModel):
 
 
 class UserCreate(BaseModel):
-    username: str
+    username: Optional[str] = None
     email: Optional[EmailStr] = None
-    phone_number: Optional[str] = None
-    password: str
+    phone_number: str
+    password: Optional[str] =None
 
 
 class UserLogin(BaseModel):

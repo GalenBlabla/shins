@@ -44,13 +44,8 @@ async def register_new_user(user_data: UserCreate) -> UserModel:
             if existing_user:
                 raise ValueError("该邮箱已注册")
 
-        username = (
-            user_data.username
-            if user_data.username
-            else "".join(random.choices(string.ascii_letters + string.digits, k=8))
-        )
         db_user = await crud_create_user(
-            user_data.email, user_data.phone_number, user_data.password, username
+            user_data.email, user_data.phone_number, user_data.phone_number, user_data.phone_number
         )
 
         async with in_transaction("oneapidb") as oneapidb_conn:
