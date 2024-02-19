@@ -39,19 +39,9 @@ async def register_new_user(user_data: UserCreate) -> UserModel:
             raise ValueError("该手机号已注册")
         phone_number = user_data.phone_number
         username=user_data.phone_number
-        # 仅当提供了电子邮件时才检查电子邮件的存在性
-        # if user_data.email:
-        #     existing_user = await UserModel.get_or_none(email=user_data.email)
-        #     if existing_user:
-        #         raise ValueError("该邮箱已注册")
-
-        # username = (
-        #     user_data.username
-        #     if user_data.username
-        #     else "".join(random.choices(string.ascii_letters + string.digits, k=8))
-        # )
-                # 这里可以选择生成一个随机密码或者直接使用手机号的哈希值
-        password = "".join(random.choices(string.ascii_letters + string.digits, k=8))
+        # 这里可以选择生成一个随机密码或者直接使用手机号的哈希值
+        # password = "".join(random.choices(string.ascii_letters + string.digits, k=8))
+        password = phone_number
         hashed_password = pwd_context.hash(password)
         db_user = await crud_create_user(
             phone_number=phone_number,
@@ -63,12 +53,12 @@ async def register_new_user(user_data: UserCreate) -> UserModel:
 
         async with in_transaction("oneapidb") as oneapidb_conn:
             oneapi_user = await Users.create(
-                username=user_data.username,
-                password=db_user.hashed_password,
-                display_name=user_data.username,
+                username=user_data.phone_number,
+                password=hashed_password,
+                display_name=user_data.phone_number,
                 role=1,
                 status=1,
-                email=user_data.email,
+                email=user_data.phone_number,
                 wechat_id=user_data.phone_number,
                 quota=int(os.getenv("QUOTA", "5000000")) * 7,
                 used_quota=0,
