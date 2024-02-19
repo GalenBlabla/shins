@@ -17,7 +17,7 @@ from app.services.user_services.user_service import (
 )
 from app.services.user_services.verification_service import (
     send_and_store_verification_code,
-    validate_captcha,
+    # validate_captcha,
     clear_stored_verification_code,
 )
 from app.services.user_services.user_service import register_new_user
