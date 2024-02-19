@@ -37,8 +37,8 @@ async def register_new_user(user_data: UserCreate) -> UserModel:
         existing_user = await UserModel.get_or_none(phone_number=user_data.phone_number)
         if existing_user:
             raise ValueError("该手机号已注册")
-        phone_number = UserModel.phone_number
-        username=UserModel.phone_number
+        phone_number = UserCreate.phone_number
+        username=UserCreate.phone_number
         # 仅当提供了电子邮件时才检查电子邮件的存在性
         # if user_data.email:
         #     existing_user = await UserModel.get_or_none(email=user_data.email)
