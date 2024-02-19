@@ -53,7 +53,7 @@ def validate_captcha(mobile: str, input_captcha: str) -> bool:
 
 
 def store_verification_code(
-    phone_number: str, code: str, expiration_in_seconds: int = 60
+    phone_number: str, code: str, expiration_in_seconds: int = 600
 ) -> None:
     """
     将验证码与手机号关联并存储在 Redis 中。
