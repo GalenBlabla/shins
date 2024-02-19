@@ -1,6 +1,6 @@
 # 2. `schemas.py`
 # 这个文件包含用于验证和序列化数据的 Pydantic 模型（schemas）。我们将创建用于用户注册、登录和更新密钥的模型。
-from pydantic import BaseModel, Field, StringConstraints, EmailStr
+from pydantic import BaseModel, Field, StringConstraints
 from typing import List, Optional, Annotated
 from datetime import datetime
 
@@ -15,10 +15,7 @@ class PaymentInfo(BaseModel):
 
 
 class UserCreate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
     phone_number: str
-    password: Optional[str] =None
 
 
 class UserLogin(BaseModel):
