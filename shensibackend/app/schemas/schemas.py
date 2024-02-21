@@ -90,7 +90,16 @@ class KeyIn_Pydantic(BaseModel):
         json_schema_extra = {
             "example": {"key": "your_unique_key_string", "is_active": True}
         }
+
+
+
+# 定义单个消息的模型
+class Message(BaseModel):
+    role: str  # 角色，如 "system", "user", "assistant" 等
+    content: str  # 消息内容
+
+# 定义主请求的模型，移除了 api_key 字段
 class ChatRequest(BaseModel):
-    api_key: str
-    model: str
-    message: str
+    model: str  # 使用的模型
+    stream: bool = True  # 默认启用流式响应
+    messages: List[Message]  # 消息列表

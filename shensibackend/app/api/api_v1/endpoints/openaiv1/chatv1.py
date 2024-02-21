@@ -1,10 +1,12 @@
 import os
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 
 from app.services.openai_services.chat_services import generate_stream
 from app.schemas.schemas import ChatRequest
+from app.api.api_v1.dependencies import get_current_user
+from app.models.shensimodels import UserModel,KeyModel
 
 load_dotenv()
 
@@ -16,12 +18,14 @@ os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL","https://api.shensi.
 
 
 @router.post("/chat_completions")
-async def stream_chat(request:ChatRequest):
-    messages = [{"role": "user", "content": request.message}]
-
+async def stream_chat(request:ChatRequest,current_user: UserModel = Depends(get_current_user)):
+    # 从数据库中查找与当前用户相关联的 API 密钥
+    user_key = await KeyModel.filter(user=current_user.id, is_active=True).first()
+    if not user_key:
+        raise HTTPException(status_code=404, detail="Active API key not found for the user")
     # 创建StreamingResponse对象
     stream_response = StreamingResponse(
-        generate_stream(request.api_key, request.model, messages),
+        generate_stream(user_key, request.model, request.messages),
         media_type="text/event-stream"
     )
 
