@@ -16,6 +16,7 @@ from app.api.api_v1.endpoints import alipayment
 from starlette.middleware.sessions import SessionMiddleware
 from app.api.api_v1.admin.dashborad import dashboard
 from app.api.api_v1.endpoints import captcha
+from app.api.api_v1.endpoints.openai import chatv1
 
 load_dotenv()
 
@@ -45,6 +46,7 @@ app.include_router(captcha.router)
 # app.include_router(admin.router)
 app.include_router(dashboard.router)
 app.include_router(alipayment.router)
+app.include_router(chatv1.router)
 
 # 添加 CORS 中间件
 app.add_middleware(

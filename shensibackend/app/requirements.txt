@@ -48,3 +48,4 @@ redis
 python-dotenv
 alipay-sdk-python== 3.7.33
 alibabacloud_dysmsapi20170525==2.0.24
+openai
