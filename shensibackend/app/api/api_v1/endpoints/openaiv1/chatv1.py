@@ -14,7 +14,7 @@ load_dotenv()
 router = APIRouter()
 
 # api_key_oneapi = "sk-IjqBdKx2iuVNXKRxFbCbE2A9Cd284cE0A2Bd78036e095521"
-os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL","https://api.shensi.co/v1")
+os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL","http://34.80.104.111:3000/v1")
 
 
 @router.post("/chat_completions")
