@@ -16,7 +16,7 @@ from app.api.api_v1.endpoints import alipayment
 from starlette.middleware.sessions import SessionMiddleware
 from app.api.api_v1.admin.dashborad import dashboard
 from app.api.api_v1.endpoints import captcha
-from app.api.api_v1.endpoints.openai import chatv1
+from app.api.api_v1.endpoints.openaiv1 import chatv1
 
 load_dotenv()
 
