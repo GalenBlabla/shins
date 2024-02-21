@@ -21,6 +21,7 @@ os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL","http://34.80.104.11
 async def stream_chat(request:ChatRequest,current_user: UserModel = Depends(get_current_user)):
     # 从数据库中查找与当前用户相关联的 API 密钥
     user_key = await KeyModel.filter(user=current_user.id, is_active=True).first()
+    print(user_key)
     if not user_key:
         raise HTTPException(status_code=404, detail="Active API key not found for the user")
     # 创建StreamingResponse对象
