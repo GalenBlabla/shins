@@ -26,7 +26,7 @@ async def stream_chat(request:ChatRequest,current_user: UserModel = Depends(get_
         raise HTTPException(status_code=404, detail="Active API key not found for the user")
     # 创建StreamingResponse对象
     stream_response = StreamingResponse(
-        generate_stream(user_key, request.model, request.messages),
+        generate_stream(api_key='sk-'+user_key, model=request.model, messages=request.messages),
         media_type="text/event-stream"
     )
 
