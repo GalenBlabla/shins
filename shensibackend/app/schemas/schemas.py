@@ -90,3 +90,7 @@ class KeyIn_Pydantic(BaseModel):
         json_schema_extra = {
             "example": {"key": "your_unique_key_string", "is_active": True}
         }
+class ChatRequest(BaseModel):
+    api_key: str
+    model: str
+    message: str
