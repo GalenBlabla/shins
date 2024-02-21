@@ -15,7 +15,7 @@ router = APIRouter()
 os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL","https://api.shensi.co/v1")
 
 
-@router.get("/chat_completions")
+@router.post("/chat_completions")
 async def stream_chat(request:ChatRequest):
     messages = [{"role": "user", "content": request.message}]
 
