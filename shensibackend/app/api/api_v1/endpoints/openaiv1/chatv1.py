@@ -17,7 +17,7 @@ router = APIRouter()
 os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL","http://34.80.104.111:3000/v1")
 
 
-@router.post("/chat_completions")
+@router.get("/chat_completions")
 async def stream_chat(request:ChatRequest,current_user: UserModel = Depends(get_current_user)):
     # 从数据库中查找与当前用户相关联的 API 密钥
     user_key = await KeyModel.filter(user=current_user.id, is_active=True).first()
